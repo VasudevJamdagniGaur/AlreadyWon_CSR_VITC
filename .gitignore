@@ -12,5 +12,11 @@ data
 coverage
 dist
 *.log
+.firebase/
+*.json
+!package.json
+!package-lock.json
+!tsconfig.json
+!.eslintrc.json
 firebase-service-account.json
 *-firebase-adminsdk-*.json
