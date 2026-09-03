@@ -3,11 +3,6 @@
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import {
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  updateProfile,
-} from "firebase/auth";
 import { getFirebaseAuth, isFirebaseClientConfigured } from "@/lib/firebase-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -76,7 +71,9 @@ function LoginForm() {
         return;
       }
 
-      const auth = getFirebaseAuth();
+      // Dynamic imports avoid Webpack `__webpack_require__.n` crashes with firebase/auth
+      const [{ signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile }, auth] =
+        await Promise.all([import("firebase/auth"), getFirebaseAuth()]);
 
       if (mode === "register") {
         const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);

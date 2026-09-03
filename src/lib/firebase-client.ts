@@ -1,5 +1,7 @@
+"use client";
+
 import { initializeApp, getApps, getApp, type FirebaseApp } from "firebase/app";
-import { getAuth, type Auth } from "firebase/auth";
+import type { Auth } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -14,7 +16,7 @@ const firebaseConfig = {
 function assertClientConfig() {
   if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.appId) {
     throw new Error(
-      "Firebase client config is missing. Set NEXT_PUBLIC_FIREBASE_* in .env"
+      "Firebase is not configured. Add NEXT_PUBLIC_FIREBASE_* to .env"
     );
   }
 }
@@ -25,7 +27,9 @@ export function getFirebaseApp(): FirebaseApp {
   return initializeApp(firebaseConfig);
 }
 
-export function getFirebaseAuth(): Auth {
+/** Lazy-load Auth to avoid Next.js/Webpack ESM interop crashes on login page. */
+export async function getFirebaseAuth(): Promise<Auth> {
+  const { getAuth } = await import("firebase/auth");
   return getAuth(getFirebaseApp());
 }
 

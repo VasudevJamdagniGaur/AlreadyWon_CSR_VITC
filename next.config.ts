@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
+  transpilePackages: ["firebase", "@firebase/auth", "@firebase/app"],
 };
 
 export default nextConfig;
