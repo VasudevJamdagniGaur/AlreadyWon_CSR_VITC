@@ -143,7 +143,7 @@ export function DashboardClient(props: DashboardClientProps) {
           </Button>
           <Button onClick={runDemo} disabled={demoLoading}>
             <Play className="h-4 w-4" />
-            {demoLoading ? "Loading…" : "Run Demo"}
+            {demoLoading ? "Loading…" : "Run"}
           </Button>
         </div>
       </div>
@@ -180,37 +180,31 @@ export function DashboardClient(props: DashboardClientProps) {
           title="Total CSR Budget"
           value={formatCurrency(kpis.annualBudget, true)}
           icon={IndianRupee}
-          demo
         />
         <KpiCard
           title="Allocated"
           value={formatCurrency(kpis.allocated, true)}
           icon={Wallet}
-          demo
         />
         <KpiCard
           title="Remaining"
           value={formatCurrency(kpis.remaining, true)}
           icon={Wallet}
-          demo
         />
         <KpiCard
           title="Active Projects"
           value={String(kpis.activeProjects)}
           icon={FolderKanban}
-          demo
         />
         <KpiCard
           title="At-Risk"
           value={String(kpis.atRisk)}
           icon={AlertTriangle}
-          demo
         />
         <KpiCard
           title="NGO Partners"
           value={String(kpis.ngoPartners)}
           icon={Building2}
-          demo
         />
       </div>
 
