@@ -3,7 +3,6 @@ import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Building2, Scale, Wallet, GitCompare, Activity } from "lucide-react";
 
 export default async function OnboardingPage() {
@@ -23,7 +22,7 @@ export default async function OnboardingPage() {
           <CardHeader>
             <CardTitle>KellyOS setup required</CardTitle>
             <CardDescription>
-              No company profile found. Run the demo seed to load synthetic Northstar Industries data.
+              No company profile found. Run npm run db:seed to load Northstar Industries data.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3 text-sm text-muted-foreground">
@@ -40,13 +39,10 @@ export default async function OnboardingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-navy-950 to-navy-900 px-6 py-12 text-white">
       <div className="mx-auto max-w-3xl">
-        <Badge variant="demo" className="mb-4">
-          DEMO ONBOARDING
-        </Badge>
         <h1 className="text-3xl font-semibold tracking-tight">Welcome to KellyOS</h1>
         <p className="mt-2 text-navy-300">
           Decision intelligence for your CSR portfolio. Company profile loaded:{" "}
-          <strong className="text-white">{company.name}</strong> (synthetic demo data).
+          <strong className="text-white">{company.name}</strong>.
         </p>
 
         <div className="mt-8 grid gap-3 sm:grid-cols-2">

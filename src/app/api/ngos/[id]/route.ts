@@ -28,7 +28,7 @@ export async function GET(
     return NextResponse.json({
       ngo,
       disclaimer:
-        "AI-assisted due diligence — Human review required. Synthetic demo organization.",
+        "AI-assisted due diligence — Human review required.",
     });
   } catch {
     return NextResponse.json({ error: "Unable to load NGO." }, { status: 500 });

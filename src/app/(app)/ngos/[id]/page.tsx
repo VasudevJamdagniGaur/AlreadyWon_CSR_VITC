@@ -45,15 +45,13 @@ export default async function NGODetailPage({
       <div className="mb-6">
         <div className="flex flex-wrap items-center gap-2">
           <h1 className="text-2xl font-semibold tracking-tight text-navy-900">{ngo.name}</h1>
-          <Badge variant="demo">SYNTHETIC DEMO ORGANIZATION</Badge>
           {ngo.isNew && <Badge variant="info">New partner</Badge>}
         </div>
         <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
           {ngo.mission || "No mission on file."}
         </p>
         <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-900">
-          AI-assisted due diligence / Human review required. Figures are synthetic demo signals,
-          not verified real-world credentials.
+          AI-assisted due diligence / Human review required.
         </p>
       </div>
 
@@ -63,17 +61,15 @@ export default async function NGODetailPage({
           value={
             ngo.overallPartnerScore != null ? formatScore(ngo.overallPartnerScore) : "—"
           }
-          demo
         />
         <KpiCard
           title="Execution reliability"
           value={
             ngo.executionReliability != null ? formatScore(ngo.executionReliability) : "—"
           }
-          demo
         />
-        <KpiCard title="Projects delivered" value={String(ngo.projectCount)} demo />
-        <KpiCard title="Years experience" value={String(ngo.yearsOfExperience)} demo />
+        <KpiCard title="Projects delivered" value={String(ngo.projectCount)} />
+        <KpiCard title="Years experience" value={String(ngo.yearsOfExperience)} />
       </div>
 
       <Tabs defaultValue="overview">

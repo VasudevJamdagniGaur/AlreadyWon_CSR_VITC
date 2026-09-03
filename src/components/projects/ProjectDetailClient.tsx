@@ -172,7 +172,6 @@ export function ProjectDetailClient({ project }: { project: ProjectDetailData })
             <h1 className="text-2xl font-semibold tracking-tight text-navy-900">
               {project.name}
             </h1>
-            {project.isDemo && <Badge variant="demo">DEMO DATA</Badge>}
             <Badge variant="secondary">{statusLabel(project.status)}</Badge>
             <RiskBadge level={project.riskLevel} />
           </div>
@@ -207,7 +206,6 @@ export function ProjectDetailClient({ project }: { project: ProjectDetailData })
         <KpiCard
           title="Overall Score"
           value={project.overallScore != null ? formatScore(project.overallScore) : "—"}
-          demo={project.isDemo}
         />
         <KpiCard
           title="Budget"
@@ -216,19 +214,16 @@ export function ProjectDetailClient({ project }: { project: ProjectDetailData })
             true
           )}
           subtitle={`Spent ${formatCurrency(project.spentBudget, true)}`}
-          demo={project.isDemo}
         />
         <KpiCard
           title="Progress"
           value={`${Math.round(project.progress)}%`}
           subtitle={`Expected ${Math.round(project.expectedProgress)}%`}
-          demo={project.isDemo}
         />
         <KpiCard
           title="Beneficiaries"
           value={String(beneficiaries.count ?? 0)}
           subtitle={geography.join(", ") || "Geography TBD"}
-          demo={project.isDemo}
         />
       </div>
 

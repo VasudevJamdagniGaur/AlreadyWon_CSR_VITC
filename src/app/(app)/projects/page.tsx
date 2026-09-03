@@ -39,7 +39,7 @@ export default async function ProjectsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Portfolio</CardTitle>
-            <CardDescription>{projects.length} projects · demo data labeled</CardDescription>
+            <CardDescription>{projects.length} projects</CardDescription>
           </CardHeader>
           <CardContent className="overflow-x-auto">
             <table className="w-full min-w-[800px] text-left text-sm">
@@ -61,11 +61,6 @@ export default async function ProjectsPage() {
                       <Link href={`/projects/${p.id}`} className="font-medium hover:underline">
                         {p.name}
                       </Link>
-                      {p.isDemo && (
-                        <Badge variant="demo" className="ml-2 text-[10px]">
-                          DEMO
-                        </Badge>
-                      )}
                     </td>
                     <td className="py-3 pr-3 text-muted-foreground">{p.category ?? "—"}</td>
                     <td className="py-3 pr-3">

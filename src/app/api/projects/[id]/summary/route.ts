@@ -49,7 +49,7 @@ export async function POST(
 
     return NextResponse.json({
       summary,
-      mode: ai.isDemo ? "Demo Analysis" : "AI Analysis",
+      mode: ai.isDemo ? "Analysis" : "AI Analysis",
       note: "Structured summary for human review. Not a legal or audited report.",
     });
   } catch {

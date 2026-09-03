@@ -65,7 +65,7 @@ export async function GET(req: Request) {
           type: "ngo",
           id: n.id,
           title: String(n.name),
-          subtitle: "SYNTHETIC DEMO ORGANIZATION",
+          subtitle: "NGO partner",
           href: `/ngos/${n.id}`,
           score,
         });

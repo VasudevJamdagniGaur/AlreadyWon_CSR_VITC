@@ -44,15 +44,15 @@ export function AnalyticsClient(props: AnalyticsClientProps) {
       <div className="mb-6">
         <h1 className="text-2xl font-semibold tracking-tight text-navy-900">Analytics</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Portfolio spend, geography, and impact-vs-investment views from KellyOS demo data.
+          Portfolio spend, geography, and impact-vs-investment views from KellyOS.
         </p>
       </div>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <KpiCard title="Total spend" value={formatCurrency(totalSpend, true)} demo />
-        <KpiCard title="Projects" value={String(projectCount)} demo />
-        <KpiCard title="Success rate" value={`${successRate.toFixed(0)}%`} demo />
-        <KpiCard title="Avg score" value={formatScore(avgScore)} demo />
+        <KpiCard title="Total spend" value={formatCurrency(totalSpend, true)} />
+        <KpiCard title="Projects" value={String(projectCount)} />
+        <KpiCard title="Success rate" value={`${successRate.toFixed(0)}%`} />
+        <KpiCard title="Avg score" value={formatScore(avgScore)} />
       </div>
 
       <div className="mb-6 grid gap-4 lg:grid-cols-2">

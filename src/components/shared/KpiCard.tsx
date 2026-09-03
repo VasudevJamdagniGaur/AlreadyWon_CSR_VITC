@@ -1,14 +1,12 @@
-import { Badge } from "@/components/ui/badge";
+import type { LucideIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import type { LucideIcon } from "lucide-react";
 
 export function KpiCard({
   title,
   value,
   subtitle,
   icon: Icon,
-  demo,
   trend,
   className,
 }: {
@@ -31,11 +29,6 @@ export function KpiCard({
         <div className="mt-1 flex items-center gap-2">
           {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
           {trend && <span className="text-xs text-muted-foreground">{trend}</span>}
-          {demo && (
-            <Badge variant="demo" className="text-[10px]">
-              DEMO DATA
-            </Badge>
-          )}
         </div>
       </CardContent>
     </Card>

@@ -17,7 +17,6 @@ import {
   Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -35,7 +34,6 @@ const NAV = [
 export function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-  const demoMode = process.env.NEXT_PUBLIC_DEMO_MODE !== "false";
 
   const NavContent = () => (
     <>
@@ -53,11 +51,6 @@ export function Sidebar() {
             </div>
           </div>
         </Link>
-        {demoMode && (
-          <Badge variant="demo" className="mt-3">
-            DEMO MODE
-          </Badge>
-        )}
       </div>
 
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">

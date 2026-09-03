@@ -15,5 +15,5 @@ export function getAIProvider(): AIProvider {
 }
 
 export function getAIModeLabel(): string {
-  return getAIProvider().isDemo ? "Demo Analysis" : "AI Analysis";
+  return getAIProvider().isDemo ? "Analysis" : "AI Analysis";
 }

@@ -4,7 +4,6 @@ import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { AppShell } from "@/components/layout/AppShell";
 import { EmptyPlaceholder } from "@/components/shared/EmptyPlaceholder";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatScore, parseJsonArray } from "@/lib/utils";
@@ -23,7 +22,7 @@ export default async function NGOsPage() {
           NGO Intelligence
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Partner profiles with synthetic due-diligence signals for KellyOS demos.
+          Partner profiles with due-diligence signals for KellyOS.
         </p>
       </div>
 
@@ -46,7 +45,6 @@ export default async function NGOsPage() {
                         {n.name}
                       </Link>
                     </CardTitle>
-                    <Badge variant="demo">SYNTHETIC DEMO ORGANIZATION</Badge>
                   </div>
                   <CardDescription className="line-clamp-2">
                     {n.mission || "Mission not provided."}

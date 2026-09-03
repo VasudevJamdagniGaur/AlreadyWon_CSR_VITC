@@ -225,7 +225,7 @@ export async function POST(req: Request) {
     return NextResponse.json(
       {
         error:
-          "Unable to process document. AI analysis is temporarily unavailable. Demo analysis may be used on retry.",
+          "Unable to process document. AI analysis is temporarily unavailable. Fallback analysis may be used on retry.",
       },
       { status: 500 }
     );

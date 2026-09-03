@@ -17,7 +17,7 @@ export function AppShell({
         <TopBar breadcrumbs={breadcrumbs} notificationCount={notificationCount} />
         <main className="animate-fade-in p-4 lg:p-6">{children}</main>
         <footer className="border-t px-6 py-3 text-center text-xs text-muted-foreground">
-          KellyOS Demo environment — data shown is synthetic.
+          KellyOS — AI-Powered CSR Decision & Project Intelligence
         </footer>
       </div>
     </div>

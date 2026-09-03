@@ -64,7 +64,7 @@ export async function POST() {
           title: "Match NGO",
           href: sunrise ? `/matching?projectId=${sunrise.id}` : "/matching",
           detail: seva
-            ? `Top match signal: ${seva.name} (synthetic demo organization).`
+            ? `Top match signal: ${seva.name}.`
             : "Rank implementation partners for the selected project.",
           matchScore: sunrise?.matches?.[0]?.matchScore,
         },
@@ -77,9 +77,9 @@ export async function POST() {
             "Track milestones, budget burn, and deterministic risk signals.",
         },
       ],
-      disclaimer: "Demo environment — all organizations and figures are synthetic.",
+      disclaimer: "KellyOS decision-support walkthrough.",
     });
   } catch {
-    return NextResponse.json({ error: "Unable to start demo walkthrough." }, { status: 500 });
+    return NextResponse.json({ error: "Unable to start walkthrough." }, { status: 500 });
   }
 }

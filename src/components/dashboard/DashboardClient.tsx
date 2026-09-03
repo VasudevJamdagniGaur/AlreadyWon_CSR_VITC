@@ -151,7 +151,7 @@ export function DashboardClient(props: DashboardClientProps) {
       {demoSteps && (
         <Card className="mb-6 border-navy-200 bg-navy-50/40">
           <CardHeader>
-            <CardTitle className="text-base">Demo walkthrough</CardTitle>
+            <CardTitle className="text-base">Walkthrough</CardTitle>
             <CardDescription>
               STEP 1 Prioritize → STEP 2 Funding → STEP 3 Match NGO → STEP 4 Monitor → STEP 5 Review risk
             </CardDescription>
@@ -254,7 +254,7 @@ export function DashboardClient(props: DashboardClientProps) {
             </div>
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <Users className="h-3.5 w-3.5" />
-              Synthetic figures for demo walkthrough
+              Portfolio impact snapshot
             </div>
           </CardContent>
         </Card>
@@ -293,7 +293,7 @@ export function DashboardClient(props: DashboardClientProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle>Demo Walkthrough</CardTitle>
+            <CardTitle>Walkthrough</CardTitle>
             <CardDescription>Suggested KellyOS path</CardDescription>
           </CardHeader>
           <CardContent>

@@ -216,7 +216,7 @@ export function MatchingClient({
         <Card className="lg:col-span-2">
           <CardHeader>
             <CardTitle>Ranked matches</CardTitle>
-            <CardDescription>Synthetic demo organizations for walkthrough</CardDescription>
+            <CardDescription>Synthetic figures for walkthrough</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {filtered.length === 0 ? (
@@ -245,7 +245,6 @@ export function MatchingClient({
                           {m.ngoName}
                         </Link>
                         {m.isSelected && <Badge variant="success">Selected</Badge>}
-                        {m.isDemo && <Badge variant="demo">SYNTHETIC</Badge>}
                       </div>
                       <p className="mt-1 text-xs text-muted-foreground">
                         Confidence {(m.confidence * 100).toFixed(0)}%
@@ -313,7 +312,7 @@ export function MatchingClient({
                     {why.reasons.length ? (
                       why.reasons.map((r) => <li key={r}>{r}</li>)
                     ) : (
-                      <li>Strong overall fit on available demo signals.</li>
+                      <li>Strong overall fit on available signals.</li>
                     )}
                   </ul>
                 </div>

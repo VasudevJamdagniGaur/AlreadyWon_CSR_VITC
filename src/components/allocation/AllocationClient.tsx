@@ -106,16 +106,16 @@ export function AllocationClient({
       </div>
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
-        <KpiCard title="Total CSR Budget" value={formatCurrency(totalBudget, true)} demo />
-        <KpiCard title="Recommended / Allocated" value={formatCurrency(allocated, true)} demo />
-        <KpiCard title="Remaining" value={formatCurrency(remaining, true)} demo />
+        <KpiCard title="Total CSR Budget" value={formatCurrency(totalBudget, true)} />
+        <KpiCard title="Recommended / Allocated" value={formatCurrency(allocated, true)} />
+        <KpiCard title="Remaining" value={formatCurrency(remaining, true)} />
       </div>
 
       <Card>
         <CardHeader>
           <CardTitle>Recommended allocations</CardTitle>
           <CardDescription>
-            From FundingRecommendation · override locally for demo walkthrough
+            From FundingRecommendation · override locally when needed
           </CardDescription>
         </CardHeader>
         <CardContent className="overflow-x-auto">

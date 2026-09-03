@@ -66,7 +66,6 @@ export default async function MonitoringPage() {
                     <div className="flex gap-2">
                       <RiskBadge level={p.riskLevel} />
                       <Badge variant="outline">{budgetStatus}</Badge>
-                      {p.isDemo && <Badge variant="demo">DEMO</Badge>}
                     </div>
                   </div>
                 </CardHeader>
