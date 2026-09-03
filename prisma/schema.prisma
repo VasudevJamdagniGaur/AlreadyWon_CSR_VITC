@@ -1,0 +1,407 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums (stored as String in SQLite for compatibility) ───
+// ProjectStatus: DRAFT | SUBMITTED | UNDER_REVIEW | APPROVED | FUNDED | IN_PROGRESS | MONITORING | COMPLETED | CLOSED | AT_RISK
+// MilestoneStatus: NOT_STARTED | IN_PROGRESS | COMPLETED | DELAYED | AT_RISK
+// RiskLevel: LOW | MEDIUM | HIGH | CRITICAL
+// RecommendationLevel: LOW_PRIORITY | CONSIDER | HIGH_PRIORITY | STRATEGIC
+// DocumentType: PROJECT_PROPOSAL | ANNUAL_REPORT | IMPACT_REPORT | FINANCIAL_REPORT | PROJECT_REPORT | ORGANIZATION_PROFILE | OTHER
+
+model User {
+  id            String         @id @default(cuid())
+  email         String         @unique
+  name          String
+  passwordHash  String
+  role          String         @default("CSR_MANAGER")
+  companyId     String?
+  company       Company?       @relation(fields: [companyId], references: [id])
+  auditLogs     AuditLog[]
+  notifications Notification[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Company {
+  id                  String            @id @default(cuid())
+  name                String
+  industries          String            // JSON array
+  csrFocus            String            // JSON array
+  targetRegions       String            // JSON array
+  beneficiaryGroups   String            // JSON array
+  strategicThemes     String            // JSON array
+  annualBudget        Float
+  allocatedBudget     Float             @default(0)
+  isDemo              Boolean           @default(true)
+  users               User[]
+  priorities          CompanyPriority[]
+  projects            Project[]
+  systemSettings      SystemSetting[]
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+}
+
+model CompanyPriority {
+  id        String   @id @default(cuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name      String
+  weight    Float    @default(1)
+  createdAt DateTime @default(now())
+}
+
+model Project {
+  id                    String                  @id @default(cuid())
+  companyId             String
+  company               Company                 @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  ngoId                 String?
+  ngo                   NGO?                    @relation(fields: [ngoId], references: [id])
+  name                  String
+  organization          String?
+  category              String?
+  description           String?
+  geography             String?                 // JSON array
+  beneficiaries         String?                 // JSON { count, groups }
+  targetOutcomes        String?                 // JSON array
+  requestedBudget       Float?
+  approvedBudget        Float?
+  spentBudget           Float                   @default(0)
+  durationMonths        Int?
+  implementationModel   String?
+  requiredExpertise     String?                 // JSON array
+  dependencies          String?                 // JSON array
+  pastExperience        String?
+  status                String                  @default("DRAFT")
+  progress              Float                   @default(0)
+  expectedProgress      Float                   @default(0)
+  overallScore          Float?
+  recommendationLevel   String?
+  riskLevel             String                  @default("LOW")
+  isDemo                Boolean                 @default(true)
+  documents             ProjectDocument[]
+  scores                ProjectScore[]
+  evidence              ProjectEvidence[]
+  milestones            Milestone[]
+  budgets               Budget[]
+  transactions          BudgetTransaction[]
+  risks                 Risk[]
+  matches               NGOMatch[]
+  fundingRecommendations FundingRecommendation[]
+  allocations           Allocation[]
+  impactMetrics         ImpactMetric[]
+  recommendations       Recommendation[]
+  progressSnapshots     ProgressSnapshot[]
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+}
+
+model ProjectDocument {
+  id              String   @id @default(cuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name            String
+  filePath        String?
+  documentType    String   @default("PROJECT_PROPOSAL")
+  mimeType        String?
+  extractedText   String?
+  structuredData  String?  // JSON
+  processingStatus String  @default("PENDING")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ProjectScore {
+  id                        String   @id @default(cuid())
+  projectId                 String
+  project                   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  overallScore              Float
+  socialImpact              Float
+  executionReliability      Float
+  companyAlignment          Float
+  communityBrandResonance   Float
+  costRiskEfficiency        Float
+  socialImpactConfidence    Float    @default(0.7)
+  executionConfidence       Float    @default(0.7)
+  alignmentConfidence       Float    @default(0.7)
+  resonanceConfidence       Float    @default(0.7)
+  efficiencyConfidence      Float    @default(0.7)
+  overallConfidence         Float    @default(0.7)
+  explanation               String?  // JSON
+  weights                   String?  // JSON of weights used
+  isOverride                Boolean  @default(false)
+  overrideReason            String?
+  createdAt                 DateTime @default(now())
+  updatedAt                 DateTime @updatedAt
+}
+
+model ProjectEvidence {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  dimension   String
+  claim       String
+  source      String?
+  sourceExcerpt String?
+  confidence  Float    @default(0.7)
+  createdAt   DateTime @default(now())
+}
+
+model Milestone {
+  id               String   @id @default(cuid())
+  projectId        String
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name             String
+  description      String?
+  startDate        DateTime?
+  dueDate          DateTime?
+  completedDate    DateTime?
+  status           String   @default("NOT_STARTED")
+  expectedProgress Float    @default(0)
+  actualProgress   Float    @default(0)
+  owner            String?
+  dependencies     String?  // JSON array
+  sortOrder        Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model Budget {
+  id             String   @id @default(cuid())
+  projectId      String
+  project        Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  approvedAmount Float
+  spentAmount    Float    @default(0)
+  remainingAmount Float   @default(0)
+  burnRate       Float?
+  expectedSpend  Float?
+  variance       Float?
+  status         String   @default("HEALTHY") // HEALTHY | AMBER | RED
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model BudgetTransaction {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  amount      Float
+  description String?
+  category    String?
+  date        DateTime @default(now())
+  createdAt   DateTime @default(now())
+}
+
+model Risk {
+  id                String   @id @default(cuid())
+  projectId         String
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  level             String   @default("MEDIUM")
+  title             String
+  reason            String
+  affectedArea      String?
+  recommendedAction String?
+  isActive          Boolean  @default(true)
+  resolvedAt        DateTime?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model ProgressSnapshot {
+  id               String   @id @default(cuid())
+  projectId        String
+  project          Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  monthLabel       String
+  expectedProgress Float
+  actualProgress   Float
+  createdAt        DateTime @default(now())
+}
+
+model NGO {
+  id                    String              @id @default(cuid())
+  name                  String
+  mission               String?
+  primaryExpertise      String              // JSON array
+  regions               String              // JSON array
+  beneficiaryGroups     String              // JSON array
+  yearsOfExperience     Int                 @default(0)
+  projectCount          Int                 @default(0)
+  executionReliability  Float?
+  financialSignals      String?             // JSON
+  riskFlags             String?             // JSON array
+  overallPartnerScore   Float?
+  confidence            Float               @default(0.7)
+  operationalCapacity   String?
+  certifications        String?             // JSON array
+  isNew                 Boolean             @default(false)
+  isDemo                Boolean             @default(true)
+  documents             NGODocument[]
+  projectHistory        NGOProjectHistory[]
+  matches               NGOMatch[]
+  projects              Project[]
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+}
+
+model NGODocument {
+  id              String   @id @default(cuid())
+  ngoId           String
+  ngo             NGO      @relation(fields: [ngoId], references: [id], onDelete: Cascade)
+  name            String
+  filePath        String?
+  documentType    String   @default("ORGANIZATION_PROFILE")
+  mimeType        String?
+  extractedText   String?
+  structuredData  String?  // JSON
+  processingStatus String  @default("PENDING")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model NGOProjectHistory {
+  id                   String   @id @default(cuid())
+  ngoId                String
+  ngo                  NGO      @relation(fields: [ngoId], references: [id], onDelete: Cascade)
+  projectName          String
+  category             String?
+  geography            String?
+  completionStatus     String
+  plannedDurationMonths Int?
+  actualDurationMonths Int?
+  milestonePerformance Float?
+  budgetVariance       Float?
+  reportedBeneficiaries Int?
+  outcomeAchievement   Float?
+  riskEvents           Int      @default(0)
+  notes                String?
+  completedAt          DateTime?
+  createdAt            DateTime @default(now())
+}
+
+model NGOMatch {
+  id                    String   @id @default(cuid())
+  projectId             String
+  project               Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  ngoId                 String
+  ngo                   NGO      @relation(fields: [ngoId], references: [id], onDelete: Cascade)
+  matchScore            Float
+  expertiseMatch        Float
+  geographicMatch       Float
+  beneficiaryMatch      Float
+  executionReliability  Float
+  relevantExperience    Float
+  riskScore             Float
+  confidence            Float
+  explanation           String?  // JSON
+  isSelected            Boolean  @default(false)
+  createdAt             DateTime @default(now())
+}
+
+model FundingRecommendation {
+  id                  String   @id @default(cuid())
+  projectId           String
+  project             Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  requestedBudget     Float
+  recommendedBudget   Float
+  coverage            Float
+  expectedImpact      Float?
+  riskLevel           String?
+  explanation         String?
+  isOverride          Boolean  @default(false)
+  overrideAmount      Float?
+  overrideReason      String?
+  createdAt           DateTime @default(now())
+}
+
+model Allocation {
+  id                String   @id @default(cuid())
+  projectId         String
+  project           Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  totalBudget       Float
+  allocatedAmount   Float
+  coverage          Float
+  efficiencyScore   Float?
+  explanation       String?
+  isApproved        Boolean  @default(false)
+  approvedBy        String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  actor     String
+  action    String
+  entity    String
+  entityId  String?
+  details   String?  // JSON
+  timestamp DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  type      String
+  title     String
+  message   String
+  entityType String?
+  entityId  String?
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model ImpactMetric {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name        String
+  value       Float
+  unit        String?
+  targetValue Float?
+  createdAt   DateTime @default(now())
+}
+
+model Recommendation {
+  id          String   @id @default(cuid())
+  projectId   String?
+  project     Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title       String
+  type        String
+  score       Float?
+  confidence  Float?
+  reason      String
+  risks       String?  // JSON array
+  actions     String?  // JSON array
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model SystemSetting {
+  id        String   @id @default(cuid())
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  key       String
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([companyId, key])
+}
+
+model DocumentChunk {
+  id         String   @id @default(cuid())
+  documentId String
+  content    String
+  section    String?
+  chunkIndex Int
+  embedding  String?  // JSON array of floats (fallback when pgvector unavailable)
+  createdAt  DateTime @default(now())
+}

@@ -1,0 +1,16 @@
+next
+node_modules
+.env
+.env.local
+.env*.local
+*.db
+*.db-journal
+.DS_Store
+uploads
+data
+.next
+coverage
+dist
+*.log
+firebase-service-account.json
+*-firebase-adminsdk-*.json
