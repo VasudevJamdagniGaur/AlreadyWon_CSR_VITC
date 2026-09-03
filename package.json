@@ -11,8 +11,9 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "db:seed": "tsx scripts/seed-firebase.ts",
-    "db:reset": "tsx scripts/seed-firebase.ts",
+    "db:seed": "tsx --env-file=.env scripts/seed-firebase.ts",
+    "db:reset": "tsx --env-file=.env scripts/seed-firebase.ts",
+    "db:test": "tsx --env-file=.env scripts/test-firestore.ts",
     "evaluate": "tsx scripts/evaluate.ts"
   },
   "dependencies": {

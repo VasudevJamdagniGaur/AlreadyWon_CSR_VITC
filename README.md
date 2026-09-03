@@ -66,9 +66,9 @@ Open [http://localhost:3000](http://localhost:3000).
 | `NEXT_PUBLIC_FIREBASE_APP_ID` | Web app id |
 | `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` | Analytics measurement id |
 | `FIREBASE_PROJECT_ID` | Same project id (server) |
-| `FIREBASE_SERVICE_ACCOUNT_JSON` | Optional Admin JSON for live Firestore |
-| `FIREBASE_SERVICE_ACCOUNT_PATH` | Optional path to service account file |
-| `USE_DEMO_FIRESTORE` | `true` = local JSON document store |
+| `FIREBASE_SERVICE_ACCOUNT_JSON` | Optional inline Admin JSON (prefer PATH) |
+| `FIREBASE_SERVICE_ACCOUNT_PATH` | Path to Admin service-account JSON (server-only) |
+| `USE_DEMO_FIRESTORE` | `true` = local JSON store; `false` = live Cloud Firestore |
 | `OPENAI_API_KEY` | Optional live AI |
 | `AI_MODEL` | Default `gpt-4o-mini` |
 | `USE_DEMO_AI` | Force Demo Analysis |
@@ -88,6 +88,7 @@ npm run lint
 npm run typecheck
 npm run test
 npm run evaluate
+npm run db:test      # read-only Cloud Firestore connectivity check
 npm run db:seed      # seed Firestore or local demo store
 npm run db:reset     # same as seed (clears then seeds)
 ```

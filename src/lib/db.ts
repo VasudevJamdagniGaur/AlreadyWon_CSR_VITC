@@ -198,37 +198,46 @@ class DocumentBackend {
 
   private async getFirestore(): Promise<FirebaseFirestore> {
     if (this.firestore) return this.firestore;
-    const admin: any = await import("firebase-admin");
-    const apps = admin.apps ?? admin.default?.apps;
-    const init = admin.initializeApp ?? admin.default?.initializeApp;
-    const credential = admin.credential ?? admin.default?.credential;
-    const firestoreFn = admin.firestore ?? admin.default?.firestore;
 
-    if (!apps?.length) {
+    const { getApps, initializeApp, cert, applicationDefault } = await import(
+      "firebase-admin/app"
+    );
+    const { getFirestore } = await import("firebase-admin/firestore");
+
+    if (!getApps().length) {
       if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
         const sa = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON);
-        init({
-          credential: credential.cert(sa),
+        initializeApp({
+          credential: cert(sa),
           projectId: sa.project_id || process.env.FIREBASE_PROJECT_ID,
         });
       } else if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
-        const sa = JSON.parse(
-          readFileSync(path.resolve(process.env.FIREBASE_SERVICE_ACCOUNT_PATH), "utf-8")
-        );
-        init({
-          credential: credential.cert(sa),
+        const resolved = path.resolve(process.env.FIREBASE_SERVICE_ACCOUNT_PATH);
+        if (!existsSync(resolved)) {
+          throw new Error(`FIREBASE_SERVICE_ACCOUNT_PATH not found: ${resolved}`);
+        }
+        const sa = JSON.parse(readFileSync(resolved, "utf-8"));
+        initializeApp({
+          credential: cert(sa),
           projectId: sa.project_id || process.env.FIREBASE_PROJECT_ID,
         });
       } else if (process.env.FIRESTORE_EMULATOR_HOST) {
-        init({ projectId: process.env.FIREBASE_PROJECT_ID || "kellyos-demo" });
-      } else {
-        init({
-          credential: credential.applicationDefault(),
+        initializeApp({
+          projectId: process.env.FIREBASE_PROJECT_ID || "kellyos-demo",
+        });
+      } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+        initializeApp({
+          credential: applicationDefault(),
           projectId: process.env.FIREBASE_PROJECT_ID,
         });
+      } else {
+        throw new Error(
+          "Live Firestore requires FIREBASE_SERVICE_ACCOUNT_PATH, FIREBASE_SERVICE_ACCOUNT_JSON, or GOOGLE_APPLICATION_CREDENTIALS."
+        );
       }
     }
-    this.firestore = firestoreFn() as FirebaseFirestore;
+
+    this.firestore = getFirestore() as FirebaseFirestore;
     return this.firestore!;
   }
 
@@ -646,4 +655,86 @@ export async function resetDatabase() {
 
 export function getDatabaseMode(): "demo" | "firestore" {
   return backend.getMode();
+}
+
+/**
+ * Read-only connectivity probe for live Cloud Firestore.
+ * Does not write data and does not seed NGO/CSR collections.
+ */
+export async function testFirestoreConnectivity(): Promise<{
+  ok: boolean;
+  mode: "demo" | "firestore";
+  projectId: string | null;
+  credentialSource:
+    | "FIREBASE_SERVICE_ACCOUNT_JSON"
+    | "FIREBASE_SERVICE_ACCOUNT_PATH"
+    | "GOOGLE_APPLICATION_CREDENTIALS"
+    | "FIRESTORE_EMULATOR_HOST"
+    | "none";
+  collectionsSampled: string[];
+  documentCounts: Record<string, number>;
+  error?: string;
+}> {
+  const mode = getDatabaseMode();
+  const projectId =
+    process.env.FIREBASE_PROJECT_ID ||
+    process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID ||
+    null;
+
+  let credentialSource:
+    | "FIREBASE_SERVICE_ACCOUNT_JSON"
+    | "FIREBASE_SERVICE_ACCOUNT_PATH"
+    | "GOOGLE_APPLICATION_CREDENTIALS"
+    | "FIRESTORE_EMULATOR_HOST"
+    | "none" = "none";
+  if (process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+    credentialSource = "FIREBASE_SERVICE_ACCOUNT_JSON";
+  } else if (process.env.FIREBASE_SERVICE_ACCOUNT_PATH) {
+    credentialSource = "FIREBASE_SERVICE_ACCOUNT_PATH";
+  } else if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+    credentialSource = "GOOGLE_APPLICATION_CREDENTIALS";
+  } else if (process.env.FIRESTORE_EMULATOR_HOST) {
+    credentialSource = "FIRESTORE_EMULATOR_HOST";
+  }
+
+  if (mode === "demo") {
+    return {
+      ok: false,
+      mode,
+      projectId,
+      credentialSource,
+      collectionsSampled: [],
+      documentCounts: {},
+      error:
+        "Demo mode active (local JSON store). Set USE_DEMO_FIRESTORE=false and provide Admin credentials to use Cloud Firestore.",
+    };
+  }
+
+  const collectionsSampled = ["Company", "Project", "NGO", "User"];
+  const documentCounts: Record<string, number> = {};
+
+  try {
+    for (const name of collectionsSampled) {
+      const rows = await backend.list(name);
+      documentCounts[name] = rows.length;
+    }
+    return {
+      ok: true,
+      mode,
+      projectId,
+      credentialSource,
+      collectionsSampled,
+      documentCounts,
+    };
+  } catch (e) {
+    return {
+      ok: false,
+      mode,
+      projectId,
+      credentialSource,
+      collectionsSampled,
+      documentCounts,
+      error: e instanceof Error ? e.message : String(e),
+    };
+  }
 }

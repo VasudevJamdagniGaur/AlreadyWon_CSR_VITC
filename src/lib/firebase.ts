@@ -4,26 +4,38 @@
  * Admin/Firestore uses service account when available; otherwise demo JSON store.
  */
 
-export function isFirebaseConfigured(): boolean {
+/** True when server-side Admin credentials (or emulator) can reach Firestore. */
+export function hasFirestoreAdminCredentials(): boolean {
   return Boolean(
     process.env.FIREBASE_SERVICE_ACCOUNT_JSON ||
       process.env.FIREBASE_SERVICE_ACCOUNT_PATH ||
-      (process.env.FIREBASE_PROJECT_ID && process.env.GOOGLE_APPLICATION_CREDENTIALS) ||
-      process.env.FIRESTORE_EMULATOR_HOST ||
-      process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+      process.env.GOOGLE_APPLICATION_CREDENTIALS ||
+      process.env.FIRESTORE_EMULATOR_HOST
   );
 }
 
+/** Broad Firebase presence check (Auth web config and/or Admin credentials). */
+export function isFirebaseConfigured(): boolean {
+  return Boolean(
+    hasFirestoreAdminCredentials() || process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+  );
+}
+
+/**
+ * Demo JSON store when:
+ * - USE_DEMO_FIRESTORE=true, or
+ * - Admin credentials are missing (safe fallback).
+ *
+ * Live Cloud Firestore when:
+ * - USE_DEMO_FIRESTORE=false AND Admin credentials are present
+ *   (or USE_DEMO_FIRESTORE unset and Admin credentials are present).
+ */
 export function isDemoFirestoreMode(): boolean {
   if (process.env.USE_DEMO_FIRESTORE === "true") return true;
-  if (process.env.USE_DEMO_FIRESTORE === "false" && isFirebaseConfigured()) return false;
-  // Prefer demo document store unless Admin credentials are present
-  return !(
-    process.env.FIREBASE_SERVICE_ACCOUNT_JSON ||
-    process.env.FIREBASE_SERVICE_ACCOUNT_PATH ||
-    process.env.GOOGLE_APPLICATION_CREDENTIALS ||
-    process.env.FIRESTORE_EMULATOR_HOST
-  );
+  if (!hasFirestoreAdminCredentials()) return true;
+  if (process.env.USE_DEMO_FIRESTORE === "false") return false;
+  // Credentials present and flag unset → live Firestore
+  return false;
 }
 
 /** Verify a Firebase ID token via Identity Toolkit (works with web API key). */
