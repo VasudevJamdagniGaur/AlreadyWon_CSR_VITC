@@ -33,14 +33,16 @@ export function DonutChart({
   data,
   dataKey = "value",
   nameKey = "name",
+  height = 220,
 }: {
   data: { name: string; value: number }[];
   dataKey?: string;
   nameKey?: string;
+  height?: number;
 }) {
   if (!data.length) return <ChartEmpty />;
   return (
-    <ResponsiveContainer width="100%" height={220}>
+    <ResponsiveContainer width="100%" height={height}>
       <PieChart>
         <Pie data={data} dataKey={dataKey} nameKey={nameKey} innerRadius={55} outerRadius={80} paddingAngle={2}>
           {data.map((_, i) => (

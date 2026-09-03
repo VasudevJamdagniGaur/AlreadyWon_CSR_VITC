@@ -4,6 +4,7 @@ import { Bell, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { BudgetSnapshotButton } from "@/components/layout/BudgetSnapshotButton";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
@@ -57,19 +58,22 @@ export function TopBar({
           />
         </form>
       </div>
-      <Button variant="ghost" size="icon" className="relative" asChild>
-        <Link href="/dashboard#notifications" aria-label="Notifications">
-          <Bell className="h-4 w-4" />
-          {notificationCount > 0 && (
-            <Badge
-              className="absolute -right-1 -top-1 h-4 min-w-4 px-1 text-[10px]"
-              variant="destructive"
-            >
-              {notificationCount}
-            </Badge>
-          )}
-        </Link>
-      </Button>
+      <div className="flex items-center gap-1">
+        <BudgetSnapshotButton />
+        <Button variant="ghost" size="icon" className="relative" asChild>
+          <Link href="/dashboard#notifications" aria-label="Notifications">
+            <Bell className="h-4 w-4" />
+            {notificationCount > 0 && (
+              <Badge
+                className="absolute -right-1 -top-1 h-4 min-w-4 px-1 text-[10px]"
+                variant="destructive"
+              >
+                {notificationCount}
+              </Badge>
+            )}
+          </Link>
+        </Button>
+      </div>
     </header>
   );
 }

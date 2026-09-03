@@ -1,41 +1,20 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
-import {
-  AlertTriangle,
-  Building2,
-  FolderKanban,
-  IndianRupee,
-  Play,
-  Users,
-  Wallet,
-  ArrowRight,
-} from "lucide-react";
+import { Users } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
-import { KpiCard } from "@/components/shared/KpiCard";
-import { DonutChart, SimpleBarChart } from "@/components/shared/Charts";
+import { SimpleBarChart } from "@/components/shared/Charts";
 import { RiskBadge } from "@/components/shared/RiskBadge";
 import { RecommendationCard } from "@/components/shared/RecommendationCard";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { formatCurrency, formatScore, statusLabel } from "@/lib/utils";
+import { formatScore, statusLabel } from "@/lib/utils";
 
 export type DashboardClientProps = {
   userName: string;
   greeting: string;
   notificationCount: number;
-  kpis: {
-    annualBudget: number;
-    allocated: number;
-    remaining: number;
-    activeProjects: number;
-    atRisk: number;
-    ngoPartners: number;
-  };
-  portfolio: { name: string; value: number }[];
   byStatus: { name: string; value: number }[];
   impact: {
     beneficiaries: number;
@@ -92,15 +71,11 @@ const WALKTHROUGH = [
   "Monitor progress and impact analytics",
 ];
 
-type DemoStep = { step: number; title: string; href: string; detail: string };
-
 export function DashboardClient(props: DashboardClientProps) {
   const {
     userName,
     greeting,
     notificationCount,
-    kpis,
-    portfolio,
     byStatus,
     impact,
     riskGroups,
@@ -109,115 +84,21 @@ export function DashboardClient(props: DashboardClientProps) {
     notifications,
   } = props;
 
-  const [demoSteps, setDemoSteps] = useState<DemoStep[] | null>(null);
-  const [demoLoading, setDemoLoading] = useState(false);
-
-  async function runDemo() {
-    setDemoLoading(true);
-    try {
-      const res = await fetch("/api/demo", { method: "POST" });
-      const data = await res.json();
-      if (res.ok) setDemoSteps(data.steps ?? []);
-    } finally {
-      setDemoLoading(false);
-    }
-  }
-
   return (
     <AppShell
       breadcrumbs={[{ label: "Dashboard" }]}
       notificationCount={notificationCount}
     >
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-navy-900">
-            {greeting}, {userName}
-          </h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Decision intelligence for your CSR portfolio.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" asChild>
-            <Link href="/prioritization">Open Prioritize</Link>
-          </Button>
-          <Button onClick={runDemo} disabled={demoLoading}>
-            <Play className="h-4 w-4" />
-            {demoLoading ? "Loading…" : "Run"}
-          </Button>
-        </div>
+      <div className="mb-6">
+        <h1 className="text-2xl font-semibold tracking-tight text-navy-900">
+          {greeting}, {userName}
+        </h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Decision intelligence for your CSR portfolio.
+        </p>
       </div>
 
-      {demoSteps && (
-        <Card className="mb-6 border-navy-200 bg-navy-50/40">
-          <CardHeader>
-            <CardTitle className="text-base">Walkthrough</CardTitle>
-            <CardDescription>
-              STEP 1 Prioritize → STEP 2 Funding → STEP 3 Match NGO → STEP 4 Monitor → STEP 5 Review risk
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="grid gap-2 md:grid-cols-5">
-            {demoSteps.map((s) => (
-              <Link
-                key={s.step}
-                href={s.href}
-                className="rounded-lg border bg-white p-3 transition hover:border-navy-300 hover:shadow-sm"
-              >
-                <p className="text-xs font-semibold text-navy-600">STEP {s.step}</p>
-                <p className="mt-1 text-sm font-medium">{s.title}</p>
-                <p className="mt-1 line-clamp-3 text-xs text-muted-foreground">{s.detail}</p>
-                <span className="mt-2 inline-flex items-center gap-1 text-xs text-primary">
-                  Open <ArrowRight className="h-3 w-3" />
-                </span>
-              </Link>
-            ))}
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="mb-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
-        <KpiCard
-          title="Total CSR Budget"
-          value={formatCurrency(kpis.annualBudget, true)}
-          icon={IndianRupee}
-        />
-        <KpiCard
-          title="Allocated"
-          value={formatCurrency(kpis.allocated, true)}
-          icon={Wallet}
-        />
-        <KpiCard
-          title="Remaining"
-          value={formatCurrency(kpis.remaining, true)}
-          icon={Wallet}
-        />
-        <KpiCard
-          title="Active Projects"
-          value={String(kpis.activeProjects)}
-          icon={FolderKanban}
-        />
-        <KpiCard
-          title="At-Risk"
-          value={String(kpis.atRisk)}
-          icon={AlertTriangle}
-        />
-        <KpiCard
-          title="NGO Partners"
-          value={String(kpis.ngoPartners)}
-          icon={Building2}
-        />
-      </div>
-
-      <div className="mb-6 grid gap-4 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle>Budget Allocation</CardTitle>
-            <CardDescription>Allocated vs remaining CSR budget</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <DonutChart data={portfolio} />
-          </CardContent>
-        </Card>
+      <div className="mb-6">
         <Card>
           <CardHeader>
             <CardTitle>Projects by Stage</CardTitle>

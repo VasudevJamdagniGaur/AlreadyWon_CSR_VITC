@@ -31,8 +31,6 @@ export default async function DashboardPage() {
       userName={user.name.split(" ")[0] || user.name}
       greeting={getGreeting()}
       notificationCount={data.notifications.filter((n) => !n.isRead).length}
-      kpis={data.kpis}
-      portfolio={data.portfolio}
       byStatus={data.byStatus}
       impact={data.impact}
       riskGroups={{
