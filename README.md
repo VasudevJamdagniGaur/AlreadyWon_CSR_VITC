@@ -32,38 +32,16 @@ CSR teams face three connected challenges:
 | Validation | Zod |
 | Tests | Vitest |
 
-## Firebase setup
+## Firebase Auth
 
-### Option A — Demo store (no Firebase account required)
+KellyOS sign-in uses **Firebase Authentication** (email/password).
 
-```bash
-USE_DEMO_FIRESTORE=true
-```
+1. Enable Email/Password in Firebase Console → Authentication  
+2. Create user `demo@kellyos.ai` / `demo123` (or register in-app)  
+3. Set `NEXT_PUBLIC_FIREBASE_*` in `.env` (see `.env.example`)  
+4. `npm run db:seed` then `npm run dev`  
 
-Data is stored in `data/kellyos-store.json` (gitignored). Same document model as Firestore.
-
-### Option B — Live Firestore
-
-1. Create a Firebase project  
-2. Enable Firestore  
-3. Create a service account and download the JSON key  
-4. Configure env:
-
-```bash
-FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_SERVICE_ACCOUNT_PATH=./firebase-service-account.json
-# OR paste JSON:
-# FIREBASE_SERVICE_ACCOUNT_JSON={"type":"service_account",...}
-USE_DEMO_FIRESTORE=false
-```
-
-### Option C — Emulator
-
-```bash
-FIRESTORE_EMULATOR_HOST=127.0.0.1:8080
-FIREBASE_PROJECT_ID=kellyos-demo
-USE_DEMO_FIRESTORE=false
-```
+Flow: client `signInWithEmailAndPassword` → ID token → `/api/auth/login` verifies token → app session cookie.
 
 ## Setup
 
@@ -80,10 +58,17 @@ Open [http://localhost:3000](http://localhost:3000).
 
 | Variable | Description |
 |----------|-------------|
-| `FIREBASE_PROJECT_ID` | Firebase project id |
-| `FIREBASE_SERVICE_ACCOUNT_JSON` | Service account JSON (string) |
-| `FIREBASE_SERVICE_ACCOUNT_PATH` | Path to service account file |
-| `USE_DEMO_FIRESTORE` | `true` = local JSON store |
+| `NEXT_PUBLIC_FIREBASE_API_KEY` | Firebase web API key |
+| `NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN` | Auth domain |
+| `NEXT_PUBLIC_FIREBASE_PROJECT_ID` | Project id (`kellys-b67aa`) |
+| `NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET` | Storage bucket |
+| `NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID` | Messaging sender id |
+| `NEXT_PUBLIC_FIREBASE_APP_ID` | Web app id |
+| `NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID` | Analytics measurement id |
+| `FIREBASE_PROJECT_ID` | Same project id (server) |
+| `FIREBASE_SERVICE_ACCOUNT_JSON` | Optional Admin JSON for live Firestore |
+| `FIREBASE_SERVICE_ACCOUNT_PATH` | Optional path to service account file |
+| `USE_DEMO_FIRESTORE` | `true` = local JSON document store |
 | `OPENAI_API_KEY` | Optional live AI |
 | `AI_MODEL` | Default `gpt-4o-mini` |
 | `USE_DEMO_AI` | Force Demo Analysis |

@@ -1,74 +1,53 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-navy-950 via-navy-900 to-navy-950 text-white">
-      <header className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6">
-        <div>
-          <p className="text-xl font-semibold tracking-tight">KELLYOS</p>
-          <p className="text-[10px] uppercase tracking-widest text-navy-300">
-            AI CSR Intelligence
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button asChild variant="outline" className="border-white/20 bg-transparent text-white hover:bg-white/10">
-            <Link href="/login">Sign in</Link>
-          </Button>
-          <Button asChild className="bg-white text-navy-950 hover:bg-navy-100">
-            <Link href="/login">Enter</Link>
-          </Button>
-        </div>
-      </header>
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#080c14] px-6 text-white">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_0%,rgba(56,120,200,0.22)_0%,rgba(8,12,20,0)_55%)]"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:radial-gradient(rgba(255,255,255,0.06)_0.6px,transparent_0.6px)] [background-size:18px_18px]"
+      />
 
-      <section className="relative mx-auto max-w-6xl px-6 pb-20 pt-16">
-        <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-navy-700/40 via-transparent to-transparent" />
-        <BadgeLine />
-        <h1 className="mt-6 max-w-3xl text-4xl font-semibold tracking-tight md:text-6xl">
-          KellyOS
+      <main className="relative z-10 flex w-full max-w-4xl flex-1 flex-col items-center justify-center text-center">
+        <h1 className="text-5xl font-bold uppercase tracking-[0.18em] sm:text-7xl md:text-8xl">
+          <span className="bg-gradient-to-b from-white via-slate-100 to-sky-300 bg-clip-text text-transparent drop-shadow-[0_0_40px_rgba(125,180,255,0.25)]">
+            KELLYOS
+          </span>
         </h1>
-        <p className="mt-3 text-lg text-navy-200 md:text-xl">
-          AI-Powered CSR Decision & Project Intelligence
-        </p>
-        <p className="mt-4 max-w-2xl text-base text-navy-300">
-          Prioritize the right projects. Match the right partners. Monitor the outcomes.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3">
-          <Button asChild size="lg" className="bg-white text-navy-950 hover:bg-navy-100">
-            <Link href="/login">
-              Enter <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-        </div>
-      </section>
 
-      <section id="architecture" className="border-t border-white/10 bg-navy-950/60 py-16">
-        <div className="mx-auto max-w-6xl px-6 text-center">
-          <Sparkles className="mx-auto mb-4 h-8 w-8 text-navy-300" />
-          <h2 className="text-2xl font-semibold">Run the KellyOS Demo</h2>
-          <p className="mx-auto mt-2 max-w-xl text-navy-300">
-            Decision-support for CSR portfolios — not an autonomous funding engine. Final decisions remain with humans.
-          </p>
-          <Button asChild size="lg" className="mt-6 bg-white text-navy-950 hover:bg-navy-100">
-            <Link href="/login">
-              Enter <ArrowRight className="h-4 w-4" />
-            </Link>
-          </Button>
-          <p className="mt-8 text-xs text-navy-400">
-            Demo environment — data shown is synthetic.
-          </p>
+        <div className="relative mt-8 h-px w-64 sm:w-80" aria-hidden>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-sky-300/70 to-transparent" />
+          <div className="absolute left-1/2 top-1/2 h-2 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sky-300/80 blur-[6px]" />
+          <div className="absolute left-1/2 top-1/2 h-1.5 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white shadow-[0_0_18px_6px_rgba(125,211,252,0.85)]" />
         </div>
-      </section>
+
+        <p className="mt-8 max-w-xl text-base font-normal tracking-wide text-slate-400 sm:text-lg">
+          CSR decision intelligence, without the complexity.
+        </p>
+
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+          <Link
+            href="/login"
+            className="inline-flex h-10 min-w-[108px] items-center justify-center rounded-md border border-white/70 bg-transparent px-6 text-sm font-medium text-white transition hover:bg-white/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
+          >
+            Sign in
+          </Link>
+          <Link
+            href="/login?mode=register"
+            className="inline-flex h-10 min-w-[108px] items-center justify-center rounded-md bg-white px-6 text-sm font-medium text-[#080c14] transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-300"
+          >
+            Register
+          </Link>
+        </div>
+      </main>
+
+      <footer className="relative z-10 pb-8 text-center text-xs text-slate-500">
+        © 2026 KellyOS
+      </footer>
     </div>
-  );
-}
-
-function BadgeLine() {
-  return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs text-navy-200">
-      <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
-      Decision-support platform · Demo Mode available
-    </span>
   );
 }

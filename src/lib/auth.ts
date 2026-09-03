@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { createHash } from "crypto";
 import { prisma } from "@/lib/db";
+import { verifyFirebaseIdToken } from "@/lib/firebase";
 
 const SESSION_COOKIE = "kellyos_session";
 
@@ -8,9 +9,10 @@ export type SessionUser = {
   id: string;
   email: string;
   name: string;
-  passwordHash: string;
+  passwordHash?: string;
   role?: string;
   companyId?: string | null;
+  firebaseUid?: string | null;
   company?: Record<string, unknown> | null;
 };
 
@@ -44,16 +46,72 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   return user as SessionUser | null;
 }
 
-export async function requireUser(): Promise<SessionUser | null> {
-  const user = await getSessionUser();
-  if (!user) {
-    const demo = await prisma.user.findUnique({
-      where: { email: "demo@kellyos.ai" },
+/**
+ * Ensure a KellyOS app user exists for a Firebase Auth account,
+ * linked to the demo company when present.
+ */
+export async function upsertFirebaseUser(params: {
+  firebaseUid: string;
+  email: string;
+  name?: string;
+}): Promise<SessionUser> {
+  const existing =
+    (await prisma.user.findUnique({
+      where: { email: params.email },
+      include: { company: true },
+    })) ||
+    (await prisma.user.findFirst({
+      where: { firebaseUid: params.firebaseUid },
+      include: { company: true },
+    }));
+
+  if (existing) {
+    const updated = await prisma.user.update({
+      where: { id: existing.id },
+      data: {
+        firebaseUid: params.firebaseUid,
+        email: params.email,
+        name: params.name || existing.name || "CSR Manager",
+      },
       include: { company: true },
     });
-    return demo as SessionUser | null;
+    return updated as SessionUser;
   }
+
+  const company = await prisma.company.findFirst();
+  const created = await prisma.user.create({
+    data: {
+      email: params.email,
+      name: params.name || params.email.split("@")[0] || "CSR Manager",
+      passwordHash: hashPassword(`firebase:${params.firebaseUid}`),
+      role: "CSR_MANAGER",
+      firebaseUid: params.firebaseUid,
+      companyId: company?.id ?? null,
+    },
+  });
+  const withCompany = await prisma.user.findUnique({
+    where: { id: created.id },
+    include: { company: true },
+  });
+  return (withCompany ?? created) as SessionUser;
+}
+
+export async function createSessionFromFirebaseToken(idToken: string) {
+  const verified = await verifyFirebaseIdToken(idToken);
+  if (!verified) {
+    throw new Error("Invalid Firebase session.");
+  }
+  const user = await upsertFirebaseUser({
+    firebaseUid: verified.localId,
+    email: verified.email,
+    name: verified.displayName,
+  });
+  await createSession(user.id);
   return user;
+}
+
+export async function requireUser(): Promise<SessionUser | null> {
+  return getSessionUser();
 }
 
 export async function logAudit(params: {

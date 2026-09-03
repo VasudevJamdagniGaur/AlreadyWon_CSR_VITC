@@ -1,50 +1,47 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@/lib/db";
-import { createSession, destroySession, hashPassword, logAudit } from "@/lib/auth";
-import { LoginSchema } from "@/lib/validation";
+import {
+  createSessionFromFirebaseToken,
+  destroySession,
+  logAudit,
+} from "@/lib/auth";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const parsed = LoginSchema.safeParse(body);
-    if (!parsed.success) {
-      return NextResponse.json({ error: "Invalid credentials format." }, { status: 400 });
+    const idToken = body.idToken as string | undefined;
+
+    if (!idToken) {
+      return NextResponse.json(
+        { error: "Firebase ID token is required." },
+        { status: 400 }
+      );
     }
 
-    const { email, password } = parsed.data;
-    let user = await prisma.user.findUnique({ where: { email } });
+    const user = await createSessionFromFirebaseToken(idToken);
 
-    // Bootstrap demo user if DB seeded but lookup fails edge-case
-    if (!user && email === "demo@kellyos.ai" && password === "demo123") {
-      const company = await prisma.company.findFirst();
-      if (company) {
-        user = await prisma.user.create({
-          data: {
-            email,
-            name: "CSR Manager",
-            passwordHash: hashPassword(password),
-            companyId: company.id,
-          },
-        });
-      }
-    }
-
-    if (!user || user.passwordHash !== hashPassword(password)) {
-      return NextResponse.json({ error: "Invalid email or password." }, { status: 401 });
-    }
-
-    await createSession(user.id);
     await logAudit({
       userId: user.id,
       actor: user.name,
       action: "USER_LOGIN",
       entity: "User",
       entityId: user.id,
+      details: { provider: "firebase", email: user.email },
     });
 
-    return NextResponse.json({ ok: true, user: { id: user.id, name: user.name, email: user.email } });
-  } catch {
-    return NextResponse.json({ error: "Unable to sign in." }, { status: 500 });
+    return NextResponse.json({
+      ok: true,
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+      },
+    });
+  } catch (e) {
+    console.error("Firebase login failed:", e);
+    return NextResponse.json(
+      { error: "Unable to sign in with Firebase. Check email/password and Auth settings." },
+      { status: 401 }
+    );
   }
 }
 

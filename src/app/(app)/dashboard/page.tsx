@@ -6,7 +6,8 @@ import { DashboardClient } from "@/components/dashboard/DashboardClient";
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  if (!user?.companyId) {
+  if (!user) redirect("/login");
+  if (!user.companyId) {
     redirect("/onboarding");
   }
 
