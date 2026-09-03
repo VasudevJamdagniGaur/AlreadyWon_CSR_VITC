@@ -14,7 +14,10 @@ export default async function ProjectDetailPage({
   const { id } = await params;
 
   const project = await prisma.project.findFirst({
-    where: { id, companyId: user.companyId },
+    where: {
+      id,
+      OR: [{ companyId: user.companyId }, { sourceName: "CSRBOX" }, { isCsrOpportunity: true }],
+    },
     include: {
       scores: { orderBy: { createdAt: "desc" }, take: 1 },
       evidence: true,
@@ -63,6 +66,12 @@ export default async function ProjectDetailPage({
         beneficiaries: project.beneficiaries,
         targetOutcomes: project.targetOutcomes,
         isDemo: project.isDemo,
+        budgetDisplay: (project.budgetDisplay as string | null) ?? null,
+        sourceName: (project.sourceName as string | null) ?? null,
+        sourceUrl: (project.sourceUrl as string | null) ?? null,
+        sourceProjectStatus: (project.sourceProjectStatus as string | null) ?? null,
+        subSector: (project.subSector as string | null) ?? null,
+        developmentSector: (project.developmentSector as string | null) ?? null,
         ngo: project.ngo
           ? { id: project.ngo.id, name: project.ngo.name, mission: project.ngo.mission }
           : null,

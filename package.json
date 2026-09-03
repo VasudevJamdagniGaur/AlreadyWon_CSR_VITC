@@ -16,6 +16,7 @@
     "db:test": "tsx --env-file=.env scripts/test-firestore.ts",
     "import:ngos": "tsx --env-file=.env scripts/import-ngos.ts",
     "import:ngos:dry": "tsx --env-file=.env scripts/import-ngos.ts --dry-run",
+    "import:csrbox": "tsx --env-file=.env scripts/import-csrbox.ts",
     "evaluate": "tsx scripts/evaluate.ts"
   },
   "dependencies": {

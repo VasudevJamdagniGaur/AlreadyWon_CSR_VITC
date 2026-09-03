@@ -43,6 +43,12 @@ export type ProjectDetailData = {
   beneficiaries: string | null;
   targetOutcomes: string | null;
   isDemo: boolean;
+  budgetDisplay?: string | null;
+  sourceName?: string | null;
+  sourceUrl?: string | null;
+  sourceProjectStatus?: string | null;
+  subSector?: string | null;
+  developmentSector?: string | null;
   ngo: { id: string; name: string; mission: string | null } | null;
   score: {
     overallScore: number;
@@ -176,9 +182,37 @@ export function ProjectDetailClient({ project }: { project: ProjectDetailData })
             <RiskBadge level={project.riskLevel} />
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            {project.category ?? "CSR Project"}
+            {project.developmentSector || project.category || "CSR Project"}
             {project.organization ? ` · ${project.organization}` : ""}
           </p>
+          {(project.sourceName || project.sourceUrl) && (
+            <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+              <span className="font-medium text-navy-900">
+                Source: {project.sourceName || "CSRBOX"}
+              </span>
+              {project.sourceUrl && (
+                <a
+                  href={project.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-navy-800 underline-offset-4 hover:underline"
+                >
+                  Open Original Source ↗
+                </a>
+              )}
+            </div>
+          )}
+          {project.subSector && (
+            <p className="mt-1 text-xs text-muted-foreground">Sub-sector: {project.subSector}</p>
+          )}
+          {project.budgetDisplay && (
+            <p className="mt-1 text-xs text-muted-foreground">Budget: {project.budgetDisplay}</p>
+          )}
+          {project.sourceProjectStatus && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              Source status: {project.sourceProjectStatus}
+            </p>
+          )}
         </div>
         <div className="flex flex-wrap gap-2">
           <Button asChild variant="outline">

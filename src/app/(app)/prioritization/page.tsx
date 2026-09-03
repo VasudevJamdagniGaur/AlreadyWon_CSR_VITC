@@ -8,7 +8,9 @@ export default async function PrioritizationPage() {
   if (!user?.companyId) redirect("/onboarding");
 
   const projects = await prisma.project.findMany({
-    where: { companyId: user.companyId },
+    where: {
+      OR: [{ companyId: user.companyId }, { sourceName: "CSRBOX" }, { isCsrOpportunity: true }],
+    },
     include: { scores: { orderBy: { createdAt: "desc" }, take: 1 } },
     orderBy: [{ overallScore: "desc" }, { name: "asc" }],
   });
