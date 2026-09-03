@@ -1,14 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import {
-  ArrowRight,
-  CheckCircle2,
-  GitCompare,
-  Scale,
-  Wallet,
-  Activity,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -56,28 +48,6 @@ export default function LandingPage() {
           >
             <Link href="#architecture">View Architecture</Link>
           </Button>
-        </div>
-      </section>
-
-      <section className="py-16">
-        <div className="mx-auto max-w-6xl px-6">
-          <h2 className="text-2xl font-semibold">The KellyOS Workflow</h2>
-          <p className="mt-2 text-navy-300">PRIORITIZE → EVALUATE → MATCH → ALLOCATE → MONITOR → LEARN</p>
-          <div className="mt-8 grid gap-4 md:grid-cols-5">
-            {[
-              { icon: Scale, title: "Prioritize", desc: "Score proposals on five transparent dimensions." },
-              { icon: CheckCircle2, title: "Evaluate", desc: "Extract structured evidence from documents." },
-              { icon: GitCompare, title: "Match", desc: "Rank NGOs by expertise, geography, and history." },
-              { icon: Wallet, title: "Allocate", desc: "Recommend budget coverage — humans decide." },
-              { icon: Activity, title: "Monitor", desc: "Track milestones, spend, and risk signals." },
-            ].map((s) => (
-              <div key={s.title} className="rounded-xl border border-white/10 bg-white/5 p-4">
-                <s.icon className="mb-3 h-5 w-5 text-navy-200" />
-                <h3 className="font-medium">{s.title}</h3>
-                <p className="mt-1 text-sm text-navy-300">{s.desc}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </section>
 
