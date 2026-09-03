@@ -17,7 +17,7 @@ export default function LandingPage() {
             <Link href="/login">Sign in</Link>
           </Button>
           <Button asChild className="bg-white text-navy-950 hover:bg-navy-100">
-            <Link href="/login">Enter Demo</Link>
+            <Link href="/login">Enter</Link>
           </Button>
         </div>
       </header>
@@ -37,7 +37,7 @@ export default function LandingPage() {
         <div className="mt-8 flex flex-wrap gap-3">
           <Button asChild size="lg" className="bg-white text-navy-950 hover:bg-navy-100">
             <Link href="/login">
-              Enter Demo <ArrowRight className="h-4 w-4" />
+              Enter <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
           <Button
@@ -51,26 +51,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="border-t border-white/10 py-16">
-        <div className="mx-auto max-w-6xl px-6">
-          <h2 className="text-2xl font-semibold">Why KellyOS</h2>
-          <ol className="mt-6 space-y-4">
-            {[
-              "Explainable recommendations — every score and match answers WHY.",
-              "Unified CSR intelligence — proposals, partners, funding, and monitoring in one system.",
-              "Historical-performance-driven recommendations — past execution informs future matching.",
-            ].map((item, i) => (
-              <li key={item} className="flex gap-3 text-navy-200">
-                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-semibold">
-                  {i + 1}
-                </span>
-                {item}
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
       <section id="architecture" className="border-t border-white/10 bg-navy-950/60 py-16">
         <div className="mx-auto max-w-6xl px-6 text-center">
           <Sparkles className="mx-auto mb-4 h-8 w-8 text-navy-300" />
@@ -80,7 +60,7 @@ export default function LandingPage() {
           </p>
           <Button asChild size="lg" className="mt-6 bg-white text-navy-950 hover:bg-navy-100">
             <Link href="/login">
-              Enter Demo <ArrowRight className="h-4 w-4" />
+              Enter <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
           <p className="mt-8 text-xs text-navy-400">
