@@ -54,7 +54,9 @@ export function Sidebar() {
     fetch("/api/profile")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
-        if (!cancelled && data?.name && data?.email) {
+        if (!cancelled && data?.user?.name && data?.user?.email) {
+          setAccount({ name: data.user.name, email: data.user.email });
+        } else if (!cancelled && data?.name && data?.email) {
           setAccount({ name: data.name, email: data.email });
         }
       })
