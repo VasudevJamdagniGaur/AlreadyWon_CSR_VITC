@@ -16,9 +16,10 @@ import {
   X,
   Sparkles,
   Handshake,
+  UserRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 const NAV = [
@@ -33,9 +34,35 @@ const NAV = [
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
 ];
 
+function initials(name: string) {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  if (parts.length === 0) return "U";
+  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+  return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+}
+
 export function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [account, setAccount] = useState<{ name: string; email: string }>({
+    name: "CSR Manager",
+    email: "demo@kellyos.ai",
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/profile")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (!cancelled && data?.name && data?.email) {
+          setAccount({ name: data.name, email: data.email });
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const NavContent = () => (
     <>
@@ -84,6 +111,19 @@ export function Sidebar() {
 
       <div className="border-t border-white/10 px-3 py-4">
         <Link
+          href="/profile"
+          onClick={() => setOpen(false)}
+          className={cn(
+            "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+            pathname === "/profile"
+              ? "bg-white/10 text-white"
+              : "text-navy-200 hover:bg-white/5 hover:text-white"
+          )}
+        >
+          <UserRound className="h-4 w-4" />
+          Profile
+        </Link>
+        <Link
           href="/settings"
           onClick={() => setOpen(false)}
           className={cn(
@@ -96,15 +136,19 @@ export function Sidebar() {
           <Settings className="h-4 w-4" />
           Settings
         </Link>
-        <div className="mt-3 flex items-center gap-3 px-3">
+        <Link
+          href="/profile"
+          onClick={() => setOpen(false)}
+          className="mt-3 flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-white/5"
+        >
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-navy-600 text-xs font-semibold text-white">
-            CM
+            {initials(account.name)}
           </div>
           <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-white">CSR Manager</p>
-            <p className="truncate text-xs text-navy-300">demo@kellyos.ai</p>
+            <p className="truncate text-sm font-medium text-white">{account.name}</p>
+            <p className="truncate text-xs text-navy-300">{account.email}</p>
           </div>
-        </div>
+        </Link>
       </div>
     </>
   );
