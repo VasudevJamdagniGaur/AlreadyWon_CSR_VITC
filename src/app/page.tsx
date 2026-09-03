@@ -40,14 +40,6 @@ export default function LandingPage() {
               Enter <ArrowRight className="h-4 w-4" />
             </Link>
           </Button>
-          <Button
-            asChild
-            size="lg"
-            variant="outline"
-            className="border-white/20 bg-transparent text-white hover:bg-white/10"
-          >
-            <Link href="#architecture">View Architecture</Link>
-          </Button>
         </div>
       </section>
 
