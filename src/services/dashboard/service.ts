@@ -41,6 +41,13 @@ export async function getDashboardData(companyId: string) {
     orderBy: { overallScore: "desc" },
   });
 
+  const availableCsrs = await prisma.project.findMany({
+    where: {
+      OR: [{ sourceName: "CSRBOX" }, { isCsrOpportunity: true }],
+    },
+    orderBy: [{ overallScore: "desc" }, { name: "asc" }],
+  });
+
   const ngos = await prisma.nGO.count();
   const notifications = await prisma.notification.findMany({
     orderBy: { createdAt: "desc" },
@@ -123,5 +130,6 @@ export async function getDashboardData(companyId: string) {
     upcomingMilestones,
     notifications,
     projects,
+    availableCsrs,
   };
 }

@@ -7,6 +7,7 @@ import { SimpleBarChart } from "@/components/shared/Charts";
 import { RiskBadge } from "@/components/shared/RiskBadge";
 import { RecommendationCard } from "@/components/shared/RecommendationCard";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatScore, statusLabel } from "@/lib/utils";
@@ -61,15 +62,21 @@ export type DashboardClientProps = {
     createdAt: string;
     isRead: boolean;
   }[];
+  availableCsrs: {
+    id: string;
+    name: string;
+    organization: string | null;
+    category: string | null;
+    subSector: string | null;
+    geography: string | null;
+    budgetDisplay: string | null;
+    status: string;
+    beneficiaries: string | null;
+    overallScore: number | null;
+    sourceName: string;
+    sourceUrl: string | null;
+  }[];
 };
-
-const WALKTHROUGH = [
-  "Upload or review proposals on Prioritization",
-  "Inspect scores and risks on each project",
-  "Run Smart NGO Matching for a shortlist",
-  "Review recommended fund allocation",
-  "Monitor progress and impact analytics",
-];
 
 export function DashboardClient(props: DashboardClientProps) {
   const {
@@ -82,6 +89,7 @@ export function DashboardClient(props: DashboardClientProps) {
     topRecommendation,
     upcomingMilestones,
     notifications,
+    availableCsrs,
   } = props;
 
   return (
@@ -96,6 +104,97 @@ export function DashboardClient(props: DashboardClientProps) {
         <p className="mt-1 text-sm text-muted-foreground">
           Decision intelligence for your CSR portfolio.
         </p>
+      </div>
+
+      <div className="mb-6" id="available-csrs">
+        <Card>
+          <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
+            <div>
+              <CardTitle>Available CSRs</CardTitle>
+              <CardDescription>
+                CSR opportunities ready for review
+                {availableCsrs.length > 0 ? ` · ${availableCsrs.length} listed` : ""}
+              </CardDescription>
+            </div>
+            <Button asChild variant="outline" size="sm">
+              <Link href="/projects#available-csrs">View all</Link>
+            </Button>
+          </CardHeader>
+          <CardContent>
+            {availableCsrs.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No CSR opportunities yet. Import or open Projects to browse proposals.
+              </p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[720px] text-left text-sm">
+                  <thead>
+                    <tr className="border-b text-xs text-muted-foreground">
+                      <th className="pb-2 pr-3 font-medium">Project</th>
+                      <th className="pb-2 pr-3 font-medium">Organisation</th>
+                      <th className="pb-2 pr-3 font-medium">Location</th>
+                      <th className="pb-2 pr-3 font-medium">Budget</th>
+                      <th className="pb-2 pr-3 font-medium">Score</th>
+                      <th className="pb-2 font-medium">Source</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {availableCsrs.slice(0, 8).map((p) => (
+                      <tr key={p.id} className="border-b last:border-0 hover:bg-muted/40">
+                        <td className="py-3 pr-3">
+                          <Link
+                            href={`/projects/${p.id}`}
+                            className="font-medium hover:underline"
+                          >
+                            {p.name}
+                          </Link>
+                          {p.category && (
+                            <p className="mt-0.5 line-clamp-1 text-xs text-muted-foreground">
+                              {p.category}
+                            </p>
+                          )}
+                        </td>
+                        <td className="py-3 pr-3 text-muted-foreground">
+                          {p.organization || "—"}
+                        </td>
+                        <td className="py-3 pr-3 text-muted-foreground">
+                          {p.geography || "—"}
+                        </td>
+                        <td className="py-3 pr-3">{p.budgetDisplay || "—"}</td>
+                        <td className="py-3 pr-3 font-semibold">
+                          {p.overallScore != null ? formatScore(p.overallScore) : "—"}
+                        </td>
+                        <td className="py-3">
+                          <div className="flex flex-col gap-1">
+                            <span className="text-xs font-medium">Source: {p.sourceName}</span>
+                            {p.sourceUrl && (
+                              <a
+                                href={p.sourceUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs text-navy-800 hover:underline"
+                              >
+                                Open Original Source ↗
+                              </a>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {availableCsrs.length > 8 && (
+                  <p className="mt-3 text-xs text-muted-foreground">
+                    Showing 8 of {availableCsrs.length}.{" "}
+                    <Link href="/projects#available-csrs" className="text-navy-800 hover:underline">
+                      See full list
+                    </Link>
+                  </p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </div>
 
       <div className="mb-6">
@@ -114,7 +213,7 @@ export function DashboardClient(props: DashboardClientProps) {
         </Card>
       </div>
 
-      <div className="mb-6 grid gap-4 lg:grid-cols-3">
+      <div className="mb-6 grid gap-4 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Impact Snapshot</CardTitle>
@@ -169,25 +268,6 @@ export function DashboardClient(props: DashboardClientProps) {
                 </ul>
               </div>
             ))}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Walkthrough</CardTitle>
-            <CardDescription>Suggested KellyOS path</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ol className="space-y-3">
-              {WALKTHROUGH.map((step, i) => (
-                <li key={step} className="flex gap-3 text-sm">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-navy-900 text-xs text-white">
-                    {i + 1}
-                  </span>
-                  <span>{step}</span>
-                </li>
-              ))}
-            </ol>
           </CardContent>
         </Card>
       </div>

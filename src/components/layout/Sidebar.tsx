@@ -15,6 +15,7 @@ import {
   Menu,
   X,
   Sparkles,
+  Handshake,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
@@ -22,6 +23,7 @@ import { Button } from "@/components/ui/button";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard#available-csrs", label: "Available CSRs", icon: Handshake },
   { href: "/projects", label: "Projects", icon: FolderKanban },
   { href: "/prioritization", label: "Prioritize", icon: Scale },
   { href: "/ngos", label: "NGO Intelligence", icon: Building2 },
@@ -55,7 +57,12 @@ export function Sidebar() {
 
       <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
         {NAV.map((item) => {
-          const active = pathname === item.href || pathname.startsWith(item.href + "/");
+          const pathOnly = item.href.split("#")[0];
+          const hasHash = item.href.includes("#");
+          const active =
+            !hasHash &&
+            (pathname === pathOnly ||
+              (pathOnly !== "/dashboard" && pathname.startsWith(pathOnly + "/")));
           return (
             <Link
               key={item.href}

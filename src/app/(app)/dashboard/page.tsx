@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { getDashboardData } from "@/services/dashboard/service";
-import { getGreeting, parseJsonObject } from "@/lib/utils";
+import { getGreeting, parseJsonArray, parseJsonObject } from "@/lib/utils";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
 
 export default async function DashboardPage() {
@@ -93,6 +93,30 @@ export default async function DashboardPage() {
         createdAt: n.createdAt.toISOString(),
         isRead: n.isRead,
       }))}
+      availableCsrs={data.availableCsrs.map((p) => {
+        const beneficiaries = parseJsonObject(p.beneficiaries, {
+          estimatedLabel: null as string | null,
+          groups: [] as string[],
+        });
+        return {
+          id: p.id,
+          name: p.name,
+          organization: p.organization,
+          category: (p.developmentSector as string | null) || p.category,
+          subSector: (p.subSector as string | null) ?? null,
+          geography: parseJsonArray(p.geography).join(", ") || null,
+          budgetDisplay: (p.budgetDisplay as string | null) ?? null,
+          status:
+            (p.sourceProjectStatus as string | null) ||
+            p.status,
+          beneficiaries:
+            beneficiaries.estimatedLabel ||
+            (beneficiaries.groups?.length ? beneficiaries.groups.join(", ") : null),
+          overallScore: p.overallScore,
+          sourceName: (p.sourceName as string | null) || "CSRBOX",
+          sourceUrl: (p.sourceUrl as string | null) ?? null,
+        };
+      })}
     />
   );
 }

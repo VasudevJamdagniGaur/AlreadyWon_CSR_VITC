@@ -47,7 +47,7 @@ export default async function ProjectsPage() {
       ) : (
         <div className="space-y-6">
           {availableCsrs.length > 0 && (
-            <Card>
+            <Card id="available-csrs">
               <CardHeader>
                 <CardTitle>Available CSRs</CardTitle>
                 <CardDescription>
