@@ -1,27 +1,32 @@
 "use client";
 
-import { Sidebar } from "./Sidebar";
-import { TopBar } from "./TopBar";
+import { useEffect, useRef } from "react";
+import { useShellMeta } from "@/components/layout/AppChrome";
 
+/**
+ * Page-level shell adapter. Chrome (sidebar/topbar) lives in the app layout
+ * so it stays mounted across navigations; pages only update breadcrumbs/meta.
+ */
 export function AppShell({
   children,
-  breadcrumbs,
-  notificationCount,
+  breadcrumbs = [],
+  notificationCount = 0,
 }: {
   children: React.ReactNode;
   breadcrumbs?: { label: string; href?: string }[];
   notificationCount?: number;
 }) {
-  return (
-    <div className="min-h-screen bg-slate-50">
-      <Sidebar />
-      <div className="lg:pl-64">
-        <TopBar breadcrumbs={breadcrumbs} notificationCount={notificationCount} />
-        <main className="animate-fade-in p-4 lg:p-6">{children}</main>
-        <footer className="border-t px-6 py-3 text-center text-xs text-muted-foreground">
-          KellyOS — AI-Powered CSR Decision & Project Intelligence
-        </footer>
-      </div>
-    </div>
-  );
+  const { setMeta } = useShellMeta();
+  const metaKey = `${notificationCount}|${breadcrumbs
+    .map((b) => `${b.label}:${b.href ?? ""}`)
+    .join(",")}`;
+  const lastKey = useRef("");
+
+  useEffect(() => {
+    if (lastKey.current === metaKey) return;
+    lastKey.current = metaKey;
+    setMeta({ breadcrumbs, notificationCount });
+  }, [metaKey, breadcrumbs, notificationCount, setMeta]);
+
+  return <>{children}</>;
 }

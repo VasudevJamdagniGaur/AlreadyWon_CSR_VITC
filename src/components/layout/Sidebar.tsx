@@ -15,16 +15,14 @@ import {
   Menu,
   X,
   Sparkles,
-  Handshake,
   UserRound,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/dashboard#available-csrs", label: "Available CSRs", icon: Handshake },
   { href: "/projects", label: "Projects", icon: FolderKanban },
   { href: "/prioritization", label: "Prioritize", icon: Scale },
   { href: "/ngos", label: "NGO Intelligence", icon: Building2 },
@@ -41,23 +39,33 @@ function initials(name: string) {
   return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
 }
 
+function isActivePath(pathname: string, href: string) {
+  return (
+    pathname === href || (href !== "/dashboard" && pathname.startsWith(href + "/"))
+  );
+}
+
 export function Sidebar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [pendingHref, setPendingHref] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
   const [account, setAccount] = useState<{ name: string; email: string }>({
     name: "CSR Manager",
     email: "demo@kellyos.ai",
   });
 
   useEffect(() => {
+    setPendingHref(null);
+  }, [pathname]);
+
+  useEffect(() => {
     let cancelled = false;
-    fetch("/api/profile")
+    fetch("/api/auth/session")
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (!cancelled && data?.user?.name && data?.user?.email) {
           setAccount({ name: data.user.name, email: data.user.email });
-        } else if (!cancelled && data?.name && data?.email) {
-          setAccount({ name: data.name, email: data.email });
         }
       })
       .catch(() => {});
@@ -66,94 +74,15 @@ export function Sidebar() {
     };
   }, []);
 
-  const NavContent = () => (
-    <>
-      <div className="border-b border-white/10 px-5 py-5">
-        <Link href="/dashboard" className="block" onClick={() => setOpen(false)}>
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
-              <Sparkles className="h-4 w-4 text-white" />
-            </div>
-            <div>
-              <p className="text-lg font-semibold tracking-tight text-white">KELLYOS</p>
-              <p className="text-[10px] font-medium uppercase tracking-widest text-navy-300">
-                AI CSR Intelligence
-              </p>
-            </div>
-          </div>
-        </Link>
-      </div>
+  function navigate(href: string) {
+    setOpen(false);
+    if (isActivePath(pathname, href)) return;
+    startTransition(() => {
+      setPendingHref(href);
+    });
+  }
 
-      <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
-        {NAV.map((item) => {
-          const pathOnly = item.href.split("#")[0];
-          const hasHash = item.href.includes("#");
-          const active =
-            !hasHash &&
-            (pathname === pathOnly ||
-              (pathOnly !== "/dashboard" && pathname.startsWith(pathOnly + "/")));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => setOpen(false)}
-              className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-                active
-                  ? "bg-white/10 text-white"
-                  : "text-navy-200 hover:bg-white/5 hover:text-white"
-              )}
-            >
-              <item.icon className="h-4 w-4 shrink-0" />
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
-
-      <div className="border-t border-white/10 px-3 py-4">
-        <Link
-          href="/profile"
-          onClick={() => setOpen(false)}
-          className={cn(
-            "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-            pathname === "/profile"
-              ? "bg-white/10 text-white"
-              : "text-navy-200 hover:bg-white/5 hover:text-white"
-          )}
-        >
-          <UserRound className="h-4 w-4" />
-          Profile
-        </Link>
-        <Link
-          href="/settings"
-          onClick={() => setOpen(false)}
-          className={cn(
-            "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-            pathname === "/settings"
-              ? "bg-white/10 text-white"
-              : "text-navy-200 hover:bg-white/5 hover:text-white"
-          )}
-        >
-          <Settings className="h-4 w-4" />
-          Settings
-        </Link>
-        <Link
-          href="/profile"
-          onClick={() => setOpen(false)}
-          className="mt-3 flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-white/5"
-        >
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-navy-600 text-xs font-semibold text-white">
-            {initials(account.name)}
-          </div>
-          <div className="min-w-0">
-            <p className="truncate text-sm font-medium text-white">{account.name}</p>
-            <p className="truncate text-xs text-navy-300">{account.email}</p>
-          </div>
-        </Link>
-      </div>
-    </>
-  );
+  const highlightHref = pendingHref ?? pathname;
 
   return (
     <>
@@ -180,7 +109,94 @@ export function Sidebar() {
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        <NavContent />
+        <div className="border-b border-white/10 px-5 py-5">
+          <Link
+            href="/dashboard"
+            prefetch
+            className="block"
+            onClick={() => navigate("/dashboard")}
+          >
+            <div className="flex items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-white/10">
+                <Sparkles className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <p className="text-lg font-semibold tracking-tight text-white">KELLYOS</p>
+                <p className="text-[10px] font-medium uppercase tracking-widest text-navy-300">
+                  AI CSR Intelligence
+                </p>
+              </div>
+            </div>
+          </Link>
+        </div>
+
+        <nav className="flex-1 space-y-0.5 overflow-y-auto px-3 py-4">
+          {NAV.map((item) => {
+            const active = isActivePath(highlightHref, item.href);
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                prefetch
+                onClick={() => navigate(item.href)}
+                className={cn(
+                  "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                  active
+                    ? "bg-white/10 text-white"
+                    : "text-navy-200 hover:bg-white/5 hover:text-white"
+                )}
+              >
+                <item.icon className="h-4 w-4 shrink-0" />
+                {item.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="border-t border-white/10 px-3 py-4">
+          <Link
+            href="/profile"
+            prefetch
+            onClick={() => navigate("/profile")}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+              isActivePath(highlightHref, "/profile")
+                ? "bg-white/10 text-white"
+                : "text-navy-200 hover:bg-white/5 hover:text-white"
+            )}
+          >
+            <UserRound className="h-4 w-4" />
+            Profile
+          </Link>
+          <Link
+            href="/settings"
+            prefetch
+            onClick={() => navigate("/settings")}
+            className={cn(
+              "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+              isActivePath(highlightHref, "/settings")
+                ? "bg-white/10 text-white"
+                : "text-navy-200 hover:bg-white/5 hover:text-white"
+            )}
+          >
+            <Settings className="h-4 w-4" />
+            Settings
+          </Link>
+          <Link
+            href="/profile"
+            prefetch
+            onClick={() => navigate("/profile")}
+            className="mt-3 flex items-center gap-3 rounded-lg px-3 py-2 hover:bg-white/5"
+          >
+            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-navy-600 text-xs font-semibold text-white">
+              {initials(account.name)}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-white">{account.name}</p>
+              <p className="truncate text-xs text-navy-300">{account.email}</p>
+            </div>
+          </Link>
+        </div>
       </aside>
     </>
   );
