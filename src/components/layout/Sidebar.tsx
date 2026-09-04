@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   FolderKanban,
+  FolderOpen,
   Scale,
   Building2,
   GitCompare,
@@ -23,6 +24,7 @@ import { Button } from "@/components/ui/button";
 
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/my-projects", label: "My Projects", icon: FolderOpen },
   { href: "/projects", label: "Projects", icon: FolderKanban },
   { href: "/prioritization", label: "Prioritize", icon: Scale },
   { href: "/ngos", label: "NGO Intelligence", icon: Building2 },
