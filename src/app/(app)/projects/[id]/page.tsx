@@ -42,8 +42,8 @@ export default async function ProjectDetailPage({
     take: 15,
   });
 
-  const score = project.scores[0] ?? null;
-  const budget = project.budgets[0] ?? null;
+  const score = project.scores?.[0] ?? null;
+  const budget = project.budgets?.[0] ?? null;
   const accountDemo = getAccountScoreForCsr(user.email, {
     name: project.name,
     organization: project.organization,
@@ -58,6 +58,15 @@ export default async function ProjectDetailPage({
     communityBrandResonance: score?.communityBrandResonance ?? null,
     costRiskEfficiency: score?.costRiskEfficiency ?? null,
   });
+
+  const milestones = project.milestones ?? [];
+  const transactions = project.transactions ?? [];
+  const risks = project.risks ?? [];
+  const documents = project.documents ?? [];
+  const evidence = project.evidence ?? [];
+  const progressSnapshots = project.progressSnapshots ?? [];
+  const impactMetrics = project.impactMetrics ?? [];
+  const recommendations = project.recommendations ?? [];
 
   return (
     <ProjectDetailClient
@@ -113,7 +122,7 @@ export default async function ProjectDetailPage({
                 weights: score?.weights ?? null,
               }
             : null,
-        milestones: project.milestones.map((m) => ({
+        milestones: milestones.map((m) => ({
           id: m.id,
           name: m.name,
           description: m.description,
@@ -132,46 +141,46 @@ export default async function ProjectDetailPage({
               status: budget.status,
             }
           : null,
-        transactions: project.transactions.map((t) => ({
+        transactions: transactions.map((t) => ({
           id: t.id,
           amount: t.amount,
           description: t.description,
           category: t.category,
-          date: t.date.toISOString(),
+          date: t.date?.toISOString?.() ?? String(t.date ?? ""),
         })),
-        risks: project.risks.map((r) => ({
+        risks: risks.map((r) => ({
           id: r.id,
           level: r.level,
           title: r.title,
           reason: r.reason,
           recommendedAction: r.recommendedAction,
         })),
-        documents: project.documents.map((d) => ({
+        documents: documents.map((d) => ({
           id: d.id,
           name: d.name,
           documentType: d.documentType,
           processingStatus: d.processingStatus,
         })),
-        evidence: project.evidence.map((e) => ({
+        evidence: evidence.map((e) => ({
           id: e.id,
           dimension: e.dimension,
           claim: e.claim,
           source: e.source,
         })),
-        progressSnapshots: project.progressSnapshots.map((s) => ({
+        progressSnapshots: progressSnapshots.map((s) => ({
           id: s.id,
           monthLabel: s.monthLabel,
           expectedProgress: s.expectedProgress,
           actualProgress: s.actualProgress,
         })),
-        impactMetrics: project.impactMetrics.map((m) => ({
+        impactMetrics: impactMetrics.map((m) => ({
           id: m.id,
           name: m.name,
           value: m.value,
           unit: m.unit,
           targetValue: m.targetValue,
         })),
-        recommendations: project.recommendations.map((r) => ({
+        recommendations: recommendations.map((r) => ({
           id: r.id,
           title: r.title,
           type: r.type,

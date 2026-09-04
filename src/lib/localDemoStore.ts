@@ -203,6 +203,12 @@ export type LocalDemoKellyProject = {
   scores: never[];
   risks: never[];
   milestones: never[];
+  budgets: never[];
+  transactions: never[];
+  documents: never[];
+  evidence: never[];
+  progressSnapshots: never[];
+  impactMetrics: never[];
   ngo: null;
   recommendations: never[];
   matches: never[];
@@ -276,6 +282,12 @@ export function mapLocalDemoToKellyProjects(
       scores: [],
       risks: [],
       milestones: [],
+      budgets: [],
+      transactions: [],
+      documents: [],
+      evidence: [],
+      progressSnapshots: [],
+      impactMetrics: [],
       ngo: null,
       recommendations: [],
       matches: [],

@@ -638,6 +638,25 @@ async function listCollectionDocs(collection: string): Promise<Doc[]> {
   return backend.list(collection);
 }
 
+/** Ensure Project relation arrays exist so detail pages never crash on .map(). */
+function withLocalDemoProjectRelations(doc: Doc): Doc {
+  return {
+    ...doc,
+    scores: doc.scores ?? [],
+    risks: doc.risks ?? [],
+    milestones: doc.milestones ?? [],
+    budgets: doc.budgets ?? [],
+    transactions: doc.transactions ?? [],
+    documents: doc.documents ?? [],
+    evidence: doc.evidence ?? [],
+    progressSnapshots: doc.progressSnapshots ?? [],
+    impactMetrics: doc.impactMetrics ?? [],
+    recommendations: doc.recommendations ?? [],
+    matches: doc.matches ?? [],
+    ngo: doc.ngo ?? null,
+  };
+}
+
 function createModel(collection: string) {
   return {
     async findMany(args: {
@@ -656,16 +675,7 @@ function createModel(collection: string) {
       // Local demo projects already carry relation stubs — skip N+1 store/Firestore reads.
       const enriched =
         collection === "Project" && isLocalDemoMode()
-          ? rows.map((r) => ({
-              ...r,
-              scores: r.scores ?? [],
-              risks: r.risks ?? [],
-              milestones: r.milestones ?? [],
-              budgets: r.budgets ?? [],
-              ngo: r.ngo ?? null,
-              recommendations: r.recommendations ?? [],
-              matches: r.matches ?? [],
-            }))
+          ? rows.map((r) => withLocalDemoProjectRelations(r))
           : await resolveIncludes(collection, rows, args.include);
       if (args.select) {
         return enriched.map((r) => {
@@ -713,16 +723,7 @@ function createModel(collection: string) {
       }
       if (!doc) return null;
       if (collection === "Project" && isLocalDemoMode()) {
-        return {
-          ...doc,
-          scores: doc.scores ?? [],
-          risks: doc.risks ?? [],
-          milestones: doc.milestones ?? [],
-          budgets: doc.budgets ?? [],
-          ngo: doc.ngo ?? null,
-          recommendations: doc.recommendations ?? [],
-          matches: doc.matches ?? [],
-        };
+        return withLocalDemoProjectRelations(doc);
       }
       const [enriched] = await resolveIncludes(collection, [doc], args.include);
       return enriched;
