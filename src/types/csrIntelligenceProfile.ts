@@ -1,5 +1,13 @@
 import type { ScoringWeights } from "@/lib/validation";
-import { DEFAULT_WEIGHTS } from "@/lib/validation";
+
+/** Local copy for client-safe defaults — matches KellyOS DEFAULT_WEIGHTS (do not diverge). */
+const PROFILE_DEFAULT_WEIGHTS: ScoringWeights = {
+  socialImpact: 30,
+  executionReliability: 20,
+  companyAlignment: 20,
+  communityBrandResonance: 15,
+  costRiskEfficiency: 15,
+};
 
 export const CSR_FOCUS_OPTIONS = [
   "Education",
@@ -359,7 +367,7 @@ export function emptyCsrIntelligenceProfile(
       preferredProjectRisk: "",
     },
     decisionProfile: {
-      weights: { ...DEFAULT_WEIGHTS },
+      weights: { ...PROFILE_DEFAULT_WEIGHTS },
     },
     governance: {
       csrHeadOrTeam: "",
@@ -510,7 +518,7 @@ export function normalizeCsrIntelligenceProfile(
     riskProfile: { ...base.riskProfile, ...(incoming.riskProfile ?? {}) },
     decisionProfile: {
       weights: {
-        ...DEFAULT_WEIGHTS,
+        ...PROFILE_DEFAULT_WEIGHTS,
         ...(incoming.decisionProfile?.weights ?? {}),
       },
     },
