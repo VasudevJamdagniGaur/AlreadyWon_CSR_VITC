@@ -6,7 +6,7 @@ const Card = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElemen
     <div
       ref={ref}
       className={cn(
-        "glass-panel rounded-2xl text-card-foreground",
+        "glass-panel rounded-2xl bg-white/[0.03] text-card-foreground",
         className
       )}
       {...props}

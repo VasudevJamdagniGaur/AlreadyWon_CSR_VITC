@@ -3,21 +3,19 @@
 import Link from "next/link";
 import { Users } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
-import { SimpleBarChart } from "@/components/shared/Charts";
 import { RiskBadge } from "@/components/shared/RiskBadge";
 import { RecommendationCard } from "@/components/shared/RecommendationCard";
+import { ScoreBreakdownButton } from "@/components/shared/ScoreBreakdownButton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatScore, statusLabel } from "@/lib/utils";
-import { ScoreBreakdownButton } from "@/components/shared/ScoreBreakdownButton";
 
 export type DashboardClientProps = {
   userName: string;
   greeting: string;
   notificationCount: number;
-  byStatus: { name: string; value: number }[];
   impact: {
     beneficiaries: number;
     regions: number;
@@ -89,7 +87,6 @@ export function DashboardClient(props: DashboardClientProps) {
     userName,
     greeting,
     notificationCount,
-    byStatus,
     impact,
     riskGroups,
     topRecommendation,
@@ -208,22 +205,6 @@ export function DashboardClient(props: DashboardClientProps) {
                 )}
               </div>
             )}
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Projects by Stage</CardTitle>
-            <CardDescription>Lifecycle distribution across the portfolio</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <SimpleBarChart
-              data={byStatus.map((s) => ({ name: statusLabel(s.name), value: s.value }))}
-              xKey="name"
-              yKey="value"
-            />
           </CardContent>
         </Card>
       </div>
