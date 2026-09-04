@@ -45,6 +45,9 @@ export async function getDashboardData(companyId: string) {
     where: {
       OR: [{ sourceName: "CSRBOX" }, { isCsrOpportunity: true }],
     },
+    include: {
+      scores: { orderBy: { createdAt: "desc" }, take: 1 },
+    },
     orderBy: [{ overallScore: "desc" }, { name: "asc" }],
   });
 

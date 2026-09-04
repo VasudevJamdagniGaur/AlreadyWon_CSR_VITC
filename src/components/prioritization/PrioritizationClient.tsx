@@ -10,10 +10,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency, formatScore, statusLabel } from "@/lib/utils";
+import { ScoreBreakdownButton } from "@/components/shared/ScoreBreakdownButton";
+import { SCORE_DIMENSION_LABELS } from "@/lib/demoAccountScores";
 
 export type PrioritizationRow = {
   id: string;
   name: string;
+  organization?: string | null;
   category: string | null;
   overallScore: number | null;
   recommendationLevel: string | null;
@@ -170,8 +173,17 @@ export function PrioritizationClient({
                       </Link>
                       <p className="text-xs text-muted-foreground">{p.category ?? "—"}</p>
                     </td>
-                    <td className="py-3 pr-2 font-semibold">
-                      {p.overallScore != null ? formatScore(p.overallScore) : "—"}
+                    <td className="py-3 pr-2">
+                      <ScoreBreakdownButton
+                        score={{
+                          overallScore: p.overallScore,
+                          socialImpact: p.socialImpact,
+                          executionReliability: p.executionReliability,
+                          companyAlignment: p.companyAlignment,
+                          communityBrandResonance: p.communityBrandResonance,
+                          costRiskEfficiency: p.costRiskEfficiency,
+                        }}
+                      />
                     </td>
                     <td className="py-3 pr-2">
                       {p.socialImpact != null ? formatScore(p.socialImpact) : "—"}
@@ -244,6 +256,21 @@ export function PrioritizationClient({
                       ? formatScore(selected.overallScore)
                       : "—"}
                   </span>
+                </div>
+                <div className="space-y-2 rounded-md border bg-muted/30 p-3">
+                  <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+                    Score division
+                  </p>
+                  {SCORE_DIMENSION_LABELS.map((d) => (
+                    <div key={d.key} className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">
+                        {d.label} ({d.weight})
+                      </span>
+                      <span className="font-medium tabular-nums">
+                        {selected[d.key] != null ? formatScore(selected[d.key]!) : "—"}
+                      </span>
+                    </div>
+                  ))}
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Risk</span>

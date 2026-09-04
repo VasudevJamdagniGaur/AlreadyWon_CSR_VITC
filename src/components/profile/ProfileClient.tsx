@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Trash2 } from "lucide-react";
+import { LogOut, Plus, Trash2 } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { MultiSelectChips, RankedFocusSelect } from "@/components/profile/MultiSelectChips";
 import { Badge } from "@/components/ui/badge";
@@ -1110,7 +1110,8 @@ export function ProfileClient({ initialProfile, user }: ProfileClientProps) {
               </Badge>
             </div>
             <Button variant="outline" onClick={signOut} disabled={signingOut}>
-              {signingOut ? "Signing out…" : "Sign out"}
+              <LogOut className="mr-1.5 h-4 w-4" />
+              {signingOut ? "Logging out…" : "Log out"}
             </Button>
           </CardContent>
         </Card>
@@ -1119,9 +1120,13 @@ export function ProfileClient({ initialProfile, user }: ProfileClientProps) {
           <Button onClick={save} disabled={saving}>
             {saving ? "Saving…" : "Save Changes"}
           </Button>
+          <Button variant="outline" onClick={signOut} disabled={signingOut}>
+            <LogOut className="mr-1.5 h-4 w-4" />
+            {signingOut ? "Logging out…" : "Log out"}
+          </Button>
           {message && <p className="text-sm text-emerald-700">{message}</p>}
           {error && <p className="text-sm text-red-600">{error}</p>}
-          <span className="text-xs text-muted-foreground">
+          <span className="ml-auto text-xs text-muted-foreground">
             Completeness: {completeness}%
           </span>
         </div>

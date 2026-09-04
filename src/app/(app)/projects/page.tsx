@@ -5,9 +5,11 @@ import { prisma } from "@/lib/db";
 import { AppShell } from "@/components/layout/AppShell";
 import { EmptyPlaceholder } from "@/components/shared/EmptyPlaceholder";
 import { RiskBadge } from "@/components/shared/RiskBadge";
+import { ScoreBreakdownButton } from "@/components/shared/ScoreBreakdownButton";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatCurrency, formatScore, parseJsonObject, statusLabel } from "@/lib/utils";
+import { applyDemoAccountScore } from "@/lib/demoAccountScores";
+import { formatCurrency, parseJsonObject, statusLabel } from "@/lib/utils";
 
 export default async function ProjectsPage() {
   const user = await requireUser();
@@ -17,14 +19,31 @@ export default async function ProjectsPage() {
     where: {
       OR: [{ companyId: user.companyId }, { sourceName: "CSRBOX" }, { isCsrOpportunity: true }],
     },
-    include: { ngo: true },
+    include: {
+      ngo: true,
+      scores: { orderBy: { createdAt: "desc" }, take: 1 },
+    },
     orderBy: [{ overallScore: "desc" }, { name: "asc" }],
   });
 
-  const availableCsrs = projects.filter(
+  const withAccountScores = projects
+    .map((p) => {
+      const latest = p.scores[0];
+      return applyDemoAccountScore(user.email, {
+        ...p,
+        socialImpact: latest?.socialImpact ?? null,
+        executionReliability: latest?.executionReliability ?? null,
+        companyAlignment: latest?.companyAlignment ?? null,
+        communityBrandResonance: latest?.communityBrandResonance ?? null,
+        costRiskEfficiency: latest?.costRiskEfficiency ?? null,
+      });
+    })
+    .sort((a, b) => (b.overallScore ?? 0) - (a.overallScore ?? 0));
+
+  const availableCsrs = withAccountScores.filter(
     (p) => p.sourceName === "CSRBOX" || p.isCsrOpportunity === true
   );
-  const portfolio = projects.filter(
+  const portfolio = withAccountScores.filter(
     (p) => p.companyId === user.companyId && !(p.sourceName === "CSRBOX" || p.isCsrOpportunity)
   );
 
@@ -37,7 +56,7 @@ export default async function ProjectsPage() {
         </p>
       </div>
 
-      {projects.length === 0 ? (
+      {withAccountScores.length === 0 ? (
         <EmptyPlaceholder
           title="No projects yet"
           description="Upload a proposal to score and prioritize your first CSR project."
@@ -124,8 +143,17 @@ export default async function ProjectsPage() {
                             <Badge variant="secondary">{statusText}</Badge>
                           </td>
                           <td className="py-3 pr-3 text-muted-foreground">{beneficiaryLabel}</td>
-                          <td className="py-3 pr-3 font-semibold">
-                            {p.overallScore != null ? formatScore(p.overallScore) : "—"}
+                          <td className="py-3 pr-3">
+                            <ScoreBreakdownButton
+                              score={{
+                                overallScore: p.overallScore,
+                                socialImpact: p.socialImpact,
+                                executionReliability: p.executionReliability,
+                                companyAlignment: p.companyAlignment,
+                                communityBrandResonance: p.communityBrandResonance,
+                                costRiskEfficiency: p.costRiskEfficiency,
+                              }}
+                            />
                           </td>
                           <td className="py-3">
                             <div className="flex flex-col gap-1">
@@ -189,8 +217,17 @@ export default async function ProjectsPage() {
                         <td className="py-3 pr-3">
                           <Badge variant="secondary">{statusLabel(p.status)}</Badge>
                         </td>
-                        <td className="py-3 pr-3 font-semibold">
-                          {p.overallScore != null ? formatScore(p.overallScore) : "—"}
+                        <td className="py-3 pr-3">
+                          <ScoreBreakdownButton
+                            score={{
+                              overallScore: p.overallScore,
+                              socialImpact: p.socialImpact,
+                              executionReliability: p.executionReliability,
+                              companyAlignment: p.companyAlignment,
+                              communityBrandResonance: p.communityBrandResonance,
+                              costRiskEfficiency: p.costRiskEfficiency,
+                            }}
+                          />
                         </td>
                         <td className="py-3 pr-3">
                           {formatCurrency(p.approvedBudget ?? p.requestedBudget ?? 0, true)}

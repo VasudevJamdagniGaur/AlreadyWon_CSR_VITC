@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { applyDemoAccountScore, getAccountScoreForCsr } from "@/lib/demoAccountScores";
 import { ProjectDetailClient } from "@/components/projects/ProjectDetailClient";
 
 export default async function ProjectDetailPage({
@@ -43,6 +44,20 @@ export default async function ProjectDetailPage({
 
   const score = project.scores[0] ?? null;
   const budget = project.budgets[0] ?? null;
+  const accountDemo = getAccountScoreForCsr(user.email, {
+    name: project.name,
+    organization: project.organization,
+  });
+  const demoScored = applyDemoAccountScore(user.email, {
+    name: project.name,
+    organization: project.organization,
+    overallScore: project.overallScore,
+    socialImpact: score?.socialImpact ?? null,
+    executionReliability: score?.executionReliability ?? null,
+    companyAlignment: score?.companyAlignment ?? null,
+    communityBrandResonance: score?.communityBrandResonance ?? null,
+    costRiskEfficiency: score?.costRiskEfficiency ?? null,
+  });
 
   return (
     <ProjectDetailClient
@@ -56,7 +71,7 @@ export default async function ProjectDetailPage({
         riskLevel: project.riskLevel,
         progress: project.progress,
         expectedProgress: project.expectedProgress,
-        overallScore: project.overallScore,
+        overallScore: demoScored.overallScore,
         recommendationLevel: project.recommendationLevel,
         requestedBudget: project.requestedBudget,
         approvedBudget: project.approvedBudget,
@@ -75,24 +90,29 @@ export default async function ProjectDetailPage({
         ngo: project.ngo
           ? { id: project.ngo.id, name: project.ngo.name, mission: project.ngo.mission }
           : null,
-        score: score
-          ? {
-              overallScore: score.overallScore,
-              socialImpact: score.socialImpact,
-              executionReliability: score.executionReliability,
-              companyAlignment: score.companyAlignment,
-              communityBrandResonance: score.communityBrandResonance,
-              costRiskEfficiency: score.costRiskEfficiency,
-              socialImpactConfidence: score.socialImpactConfidence,
-              executionConfidence: score.executionConfidence,
-              alignmentConfidence: score.alignmentConfidence,
-              resonanceConfidence: score.resonanceConfidence,
-              efficiencyConfidence: score.efficiencyConfidence,
-              overallConfidence: score.overallConfidence,
-              explanation: score.explanation,
-              weights: score.weights,
-            }
-          : null,
+        score:
+          score || accountDemo
+            ? {
+                overallScore: demoScored.overallScore ?? score?.overallScore ?? 0,
+                socialImpact: demoScored.socialImpact ?? score?.socialImpact ?? 0,
+                executionReliability:
+                  demoScored.executionReliability ?? score?.executionReliability ?? 0,
+                companyAlignment:
+                  demoScored.companyAlignment ?? score?.companyAlignment ?? 0,
+                communityBrandResonance:
+                  demoScored.communityBrandResonance ?? score?.communityBrandResonance ?? 0,
+                costRiskEfficiency:
+                  demoScored.costRiskEfficiency ?? score?.costRiskEfficiency ?? 0,
+                socialImpactConfidence: score?.socialImpactConfidence ?? 0.85,
+                executionConfidence: score?.executionConfidence ?? 0.85,
+                alignmentConfidence: score?.alignmentConfidence ?? 0.85,
+                resonanceConfidence: score?.resonanceConfidence ?? 0.85,
+                efficiencyConfidence: score?.efficiencyConfidence ?? 0.85,
+                overallConfidence: score?.overallConfidence ?? 0.85,
+                explanation: score?.explanation ?? null,
+                weights: score?.weights ?? null,
+              }
+            : null,
         milestones: project.milestones.map((m) => ({
           id: m.id,
           name: m.name,

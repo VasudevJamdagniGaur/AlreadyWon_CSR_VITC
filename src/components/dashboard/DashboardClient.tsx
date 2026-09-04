@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { formatScore, statusLabel } from "@/lib/utils";
+import { ScoreBreakdownButton } from "@/components/shared/ScoreBreakdownButton";
 
 export type DashboardClientProps = {
   userName: string;
@@ -73,6 +74,11 @@ export type DashboardClientProps = {
     status: string;
     beneficiaries: string | null;
     overallScore: number | null;
+    socialImpact?: number | null;
+    executionReliability?: number | null;
+    companyAlignment?: number | null;
+    communityBrandResonance?: number | null;
+    costRiskEfficiency?: number | null;
     sourceName: string;
     sourceUrl: string | null;
   }[];
@@ -161,8 +167,17 @@ export function DashboardClient(props: DashboardClientProps) {
                           {p.geography || "—"}
                         </td>
                         <td className="py-3 pr-3">{p.budgetDisplay || "—"}</td>
-                        <td className="py-3 pr-3 font-semibold">
-                          {p.overallScore != null ? formatScore(p.overallScore) : "—"}
+                        <td className="py-3 pr-3">
+                          <ScoreBreakdownButton
+                            score={{
+                              overallScore: p.overallScore,
+                              socialImpact: p.socialImpact,
+                              executionReliability: p.executionReliability,
+                              companyAlignment: p.companyAlignment,
+                              communityBrandResonance: p.communityBrandResonance,
+                              costRiskEfficiency: p.costRiskEfficiency,
+                            }}
+                          />
                         </td>
                         <td className="py-3">
                           <div className="flex flex-col gap-1">

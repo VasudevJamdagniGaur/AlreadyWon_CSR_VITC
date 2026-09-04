@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { getDashboardData } from "@/services/dashboard/service";
+import { applyDemoAccountScore } from "@/lib/demoAccountScores";
 import { getGreeting, parseJsonArray, parseJsonObject } from "@/lib/utils";
 import { DashboardClient } from "@/components/dashboard/DashboardClient";
 
@@ -55,25 +56,48 @@ export default async function DashboardPage() {
       }}
       topRecommendation={
         top
-          ? {
-              projectId: top.project.id,
-              projectName: top.project.name,
-              category: top.project.category,
-              overallScore: top.project.overallScore,
-              recommendationLevel: top.project.recommendationLevel,
-              reason,
-              score: top.score
-                ? {
-                    overallScore: top.score.overallScore,
-                    socialImpact: top.score.socialImpact,
-                    executionReliability: top.score.executionReliability,
-                    companyAlignment: top.score.companyAlignment,
-                    communityBrandResonance: top.score.communityBrandResonance,
-                    costRiskEfficiency: top.score.costRiskEfficiency,
-                    overallConfidence: top.score.overallConfidence,
-                  }
-                : null,
-            }
+          ? (() => {
+              const demo = applyDemoAccountScore(user.email, {
+                name: top.project.name,
+                organization: top.project.organization,
+                overallScore: top.project.overallScore,
+                socialImpact: top.score?.socialImpact ?? null,
+                executionReliability: top.score?.executionReliability ?? null,
+                companyAlignment: top.score?.companyAlignment ?? null,
+                communityBrandResonance: top.score?.communityBrandResonance ?? null,
+                costRiskEfficiency: top.score?.costRiskEfficiency ?? null,
+              });
+              return {
+                projectId: top.project.id,
+                projectName: top.project.name,
+                category: top.project.category,
+                overallScore: demo.overallScore,
+                recommendationLevel: top.project.recommendationLevel,
+                reason,
+                score:
+                  demo.socialImpact != null
+                    ? {
+                        overallScore: demo.overallScore ?? 0,
+                        socialImpact: demo.socialImpact ?? 0,
+                        executionReliability: demo.executionReliability ?? 0,
+                        companyAlignment: demo.companyAlignment ?? 0,
+                        communityBrandResonance: demo.communityBrandResonance ?? 0,
+                        costRiskEfficiency: demo.costRiskEfficiency ?? 0,
+                        overallConfidence: top.score?.overallConfidence ?? 0.85,
+                      }
+                    : top.score
+                      ? {
+                          overallScore: top.score.overallScore,
+                          socialImpact: top.score.socialImpact,
+                          executionReliability: top.score.executionReliability,
+                          companyAlignment: top.score.companyAlignment,
+                          communityBrandResonance: top.score.communityBrandResonance,
+                          costRiskEfficiency: top.score.costRiskEfficiency,
+                          overallConfidence: top.score.overallConfidence,
+                        }
+                      : null,
+              };
+            })()
           : null
       }
       upcomingMilestones={data.upcomingMilestones.map((m) => ({
@@ -93,30 +117,37 @@ export default async function DashboardPage() {
         createdAt: n.createdAt.toISOString(),
         isRead: n.isRead,
       }))}
-      availableCsrs={data.availableCsrs.map((p) => {
-        const beneficiaries = parseJsonObject(p.beneficiaries, {
-          estimatedLabel: null as string | null,
-          groups: [] as string[],
-        });
-        return {
-          id: p.id,
-          name: p.name,
-          organization: p.organization,
-          category: (p.developmentSector as string | null) || p.category,
-          subSector: (p.subSector as string | null) ?? null,
-          geography: parseJsonArray(p.geography).join(", ") || null,
-          budgetDisplay: (p.budgetDisplay as string | null) ?? null,
-          status:
-            (p.sourceProjectStatus as string | null) ||
-            p.status,
-          beneficiaries:
-            beneficiaries.estimatedLabel ||
-            (beneficiaries.groups?.length ? beneficiaries.groups.join(", ") : null),
-          overallScore: p.overallScore,
-          sourceName: (p.sourceName as string | null) || "CSRBOX",
-          sourceUrl: (p.sourceUrl as string | null) ?? null,
-        };
-      })}
+      availableCsrs={data.availableCsrs
+        .map((p) => {
+          const beneficiaries = parseJsonObject(p.beneficiaries, {
+            estimatedLabel: null as string | null,
+            groups: [] as string[],
+          });
+          const latest = p.scores?.[0];
+          const base = {
+            id: p.id,
+            name: p.name,
+            organization: p.organization,
+            category: (p.developmentSector as string | null) || p.category,
+            subSector: (p.subSector as string | null) ?? null,
+            geography: parseJsonArray(p.geography).join(", ") || null,
+            budgetDisplay: (p.budgetDisplay as string | null) ?? null,
+            status: (p.sourceProjectStatus as string | null) || p.status,
+            beneficiaries:
+              beneficiaries.estimatedLabel ||
+              (beneficiaries.groups?.length ? beneficiaries.groups.join(", ") : null),
+            overallScore: p.overallScore,
+            socialImpact: latest?.socialImpact ?? null,
+            executionReliability: latest?.executionReliability ?? null,
+            companyAlignment: latest?.companyAlignment ?? null,
+            communityBrandResonance: latest?.communityBrandResonance ?? null,
+            costRiskEfficiency: latest?.costRiskEfficiency ?? null,
+            sourceName: (p.sourceName as string | null) || "CSRBOX",
+            sourceUrl: (p.sourceUrl as string | null) ?? null,
+          };
+          return applyDemoAccountScore(user.email, base);
+        })
+        .sort((a, b) => (b.overallScore ?? 0) - (a.overallScore ?? 0))}
     />
   );
 }
