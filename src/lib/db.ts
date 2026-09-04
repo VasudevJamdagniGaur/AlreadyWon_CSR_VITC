@@ -167,6 +167,11 @@ class DocumentBackend {
   private filePath: string;
   private firestore: FirebaseFirestore | null = null;
   private mode: "demo" | "firestore";
+  /** Short TTL cache to stop repeated full-collection reads. */
+  private listCache = new Map<string, { at: number; rows: Doc[] }>();
+  private readonly listTtlMs = Number(process.env.FIRESTORE_LIST_CACHE_MS || 45_000);
+  /** After quota errors, prefer local/demo until this timestamp. */
+  private quotaCooldownUntil = 0;
 
   constructor() {
     this.filePath = path.join(process.cwd(), "data", "kellyos-store.json");
@@ -194,6 +199,45 @@ class DocumentBackend {
       serializable[k] = rows.map(serializeDoc);
     }
     writeFileSync(this.filePath, JSON.stringify(serializable, null, 2), "utf-8");
+  }
+
+  private useLocalFallback(): boolean {
+    return this.mode === "demo" || Date.now() < this.quotaCooldownUntil;
+  }
+
+  private enterQuotaCooldown(err: unknown): boolean {
+    const msg = err instanceof Error ? err.message : String(err);
+    const code =
+      err && typeof err === "object" && "code" in err
+        ? String((err as { code: unknown }).code)
+        : "";
+    const quota =
+      msg.includes("RESOURCE_EXHAUSTED") ||
+      msg.includes("Quota exceeded") ||
+      code.includes("resource-exhausted") ||
+      code === "8";
+    if (!quota) return false;
+    this.quotaCooldownUntil = Date.now() + 10 * 60 * 1000;
+    this.loadFile();
+    console.warn(
+      "[KellyOS] Firestore quota exceeded. Falling back to local/cached store for 10 minutes."
+    );
+    return true;
+  }
+
+  private cacheList(collection: string, rows: Doc[]) {
+    this.listCache.set(collection, {
+      at: Date.now(),
+      rows: rows.map((r) => ({ ...r })),
+    });
+    this.data[collection] = rows.map(serializeDoc);
+  }
+
+  private getCachedList(collection: string): Doc[] | null {
+    const hit = this.listCache.get(collection);
+    if (!hit) return null;
+    if (Date.now() - hit.at > this.listTtlMs) return null;
+    return hit.rows.map(reviveDates);
   }
 
   private async getFirestore(): Promise<FirebaseFirestore> {
@@ -246,13 +290,98 @@ class DocumentBackend {
     return this.data[name];
   }
 
+  async getById(collection: string, id: string): Promise<Doc | null> {
+    if (!id) return null;
+
+    const cached = this.getCachedList(collection);
+    if (cached) {
+      const hit = cached.find((r) => r.id === id);
+      if (hit) return hit;
+    }
+    if (this.useLocalFallback()) {
+      return this.col(collection).map(reviveDates).find((r) => r.id === id) ?? null;
+    }
+
+    try {
+      const fs = await this.getFirestore();
+      const snap = await fs.collection(collection).doc(id).get();
+      if (!snap.exists) return null;
+      const doc = reviveDates({ id: snap.id, ...(snap.data() || {}) } as Doc);
+      const existing = this.listCache.get(collection);
+      if (existing) {
+        const idx = existing.rows.findIndex((r) => r.id === id);
+        if (idx >= 0) existing.rows[idx] = doc;
+        else existing.rows.push(doc);
+      }
+      return doc;
+    } catch (err) {
+      if (this.enterQuotaCooldown(err)) {
+        return this.col(collection).map(reviveDates).find((r) => r.id === id) ?? null;
+      }
+      throw err;
+    }
+  }
+
+  async queryEq(
+    collection: string,
+    field: string,
+    value: unknown,
+    limit?: number
+  ): Promise<Doc[]> {
+    if (value == null) return [];
+
+    const cached = this.getCachedList(collection);
+    if (cached) {
+      let rows = cached.filter((r) => r[field] === value);
+      if (limit != null) rows = rows.slice(0, limit);
+      return rows;
+    }
+    if (this.useLocalFallback()) {
+      let rows = this.col(collection).map(reviveDates).filter((r) => r[field] === value);
+      if (limit != null) rows = rows.slice(0, limit);
+      return rows;
+    }
+
+    try {
+      const fs = await this.getFirestore();
+      const base = fs.collection(collection).where(field, "==", value);
+      const snap = limit != null ? await base.limit(limit).get() : await base.get();
+      return snap.docs.map((d) => reviveDates({ id: d.id, ...d.data() } as Doc));
+    } catch (err) {
+      if (this.enterQuotaCooldown(err)) {
+        let rows = this.col(collection).map(reviveDates).filter((r) => r[field] === value);
+        if (limit != null) rows = rows.slice(0, limit);
+        return rows;
+      }
+      // Missing indexes / unsupported ops → fall back to list filter once (cached).
+      let rows = (await this.list(collection)).filter((r) => r[field] === value);
+      if (limit != null) rows = rows.slice(0, limit);
+      return rows;
+    }
+  }
+
   async list(collection: string): Promise<Doc[]> {
-    if (this.mode === "demo") {
+    const cached = this.getCachedList(collection);
+    if (cached) return cached;
+
+    if (this.useLocalFallback()) {
       return this.col(collection).map(reviveDates);
     }
-    const fs = await this.getFirestore();
-    const snap = await fs.collection(collection).get();
-    return snap.docs.map((d) => reviveDates({ id: d.id, ...d.data() } as Doc));
+
+    try {
+      const fs = await this.getFirestore();
+      const snap = await fs.collection(collection).get();
+      const rows = snap.docs.map((d) => reviveDates({ id: d.id, ...d.data() } as Doc));
+      this.cacheList(collection, rows);
+      return rows;
+    } catch (err) {
+      if (this.enterQuotaCooldown(err)) {
+        const stale = this.listCache.get(collection);
+        if (stale) return stale.rows.map(reviveDates);
+        return this.col(collection).map(reviveDates);
+      }
+      throw err;
+    }
   }
 
   async save(collection: string, doc: Doc): Promise<Doc> {
@@ -261,46 +390,70 @@ class DocumentBackend {
       ...doc,
       id: doc.id || cuid(),
       updatedAt: now,
-      createdAt: doc.createdAt instanceof Date ? doc.createdAt : doc.createdAt ? new Date(String(doc.createdAt)) : now,
+      createdAt:
+        doc.createdAt instanceof Date
+          ? doc.createdAt
+          : doc.createdAt
+            ? new Date(String(doc.createdAt))
+            : now,
     };
 
-    if (this.mode === "demo") {
+    if (this.useLocalFallback()) {
       const rows = this.col(collection);
       const idx = rows.findIndex((r) => r.id === payload.id);
       if (idx >= 0) rows[idx] = serializeDoc(payload);
       else rows.push(serializeDoc(payload));
       this.persistFile();
+      this.listCache.delete(collection);
       return reviveDates(payload);
     }
 
-    const fs = await this.getFirestore();
-    const { id, ...rest } = serializeDoc(payload);
-    await fs.collection(collection).doc(id).set(rest, { merge: true });
-    return reviveDates(payload);
+    try {
+      const fs = await this.getFirestore();
+      const { id, ...rest } = serializeDoc(payload);
+      await fs.collection(collection).doc(id).set(rest, { merge: true });
+      this.listCache.delete(collection);
+      return reviveDates(payload);
+    } catch (err) {
+      if (this.enterQuotaCooldown(err)) {
+        const rows = this.col(collection);
+        const idx = rows.findIndex((r) => r.id === payload.id);
+        if (idx >= 0) rows[idx] = serializeDoc(payload);
+        else rows.push(serializeDoc(payload));
+        this.persistFile();
+        this.listCache.delete(collection);
+        return reviveDates(payload);
+      }
+      throw err;
+    }
   }
 
   async removeWhere(collection: string, where?: Record<string, unknown>): Promise<number> {
-    if (this.mode === "demo") {
+    if (this.useLocalFallback()) {
       const before = this.col(collection).length;
-      this.data[collection] = this.col(collection).filter((d) => !matchesWhere(reviveDates(d), where));
+      this.data[collection] = this.col(collection).filter(
+        (d) => !matchesWhere(reviveDates(d), where)
+      );
       this.persistFile();
+      this.listCache.delete(collection);
       return before - this.col(collection).length;
     }
-    const fs = await this.getFirestore();
     const toDelete = (await this.list(collection)).filter((d) => matchesWhere(d, where));
+    const fs = await this.getFirestore();
     for (const d of toDelete) {
       await fs.collection(collection).doc(d.id).delete();
     }
+    this.listCache.delete(collection);
     return toDelete.length;
   }
 
   async clearAll() {
-    if (this.mode === "demo") {
+    if (this.useLocalFallback()) {
       this.data = {};
+      this.listCache.clear();
       this.persistFile();
       return;
     }
-    // For Firestore seed reset, delete known collections
     const names = Object.keys(RELATIONS).concat([
       "CompanyPriority",
       "ProjectDocument",
@@ -330,17 +483,33 @@ class DocumentBackend {
     for (const name of Array.from(new Set(names))) {
       await this.removeWhere(name);
     }
+    this.listCache.clear();
   }
 
   getMode(): "demo" | "firestore" {
-    return this.mode;
+    return this.useLocalFallback() && this.mode !== "demo" ? "demo" : this.mode;
   }
 }
 
 type FirebaseFirestore = {
   collection: (name: string) => {
     get: () => Promise<{ docs: { id: string; data: () => Record<string, unknown> }[] }>;
+    where: (
+      field: string,
+      op: "==",
+      value: unknown
+    ) => {
+      get: () => Promise<{ docs: { id: string; data: () => Record<string, unknown> }[] }>;
+      limit: (n: number) => {
+        get: () => Promise<{ docs: { id: string; data: () => Record<string, unknown> }[] }>;
+      };
+    };
     doc: (id: string) => {
+      get: () => Promise<{
+        exists: boolean;
+        id: string;
+        data: () => Record<string, unknown> | undefined;
+      }>;
       set: (data: unknown, opts?: { merge?: boolean }) => Promise<void>;
       delete: () => Promise<void>;
     };
@@ -381,8 +550,7 @@ async function resolveIncludes(
         if (!fk) {
           enriched[key] = null;
         } else {
-          const all = await backend.list(rel.collection);
-          let related = all.find((r) => r.id === fk) ?? null;
+          let related = await backend.getById(rel.collection, String(fk));
           if (related && nestedInclude) {
             related = (await resolveIncludes(rel.collection, [related], nestedInclude))[0];
           }
@@ -398,9 +566,10 @@ async function resolveIncludes(
           enriched[key] = related;
         }
       } else {
-        let related = (await backend.list(rel.collection)).filter(
-          (r) => r[rel.foreignKey] === doc.id && matchesWhere(r, whereExtra)
-        );
+        let related = await backend.queryEq(rel.collection, rel.foreignKey, doc.id);
+        if (whereExtra) {
+          related = related.filter((r) => matchesWhere(r, whereExtra));
+        }
         related = sortDocs(related, orderBy);
         if (take != null) related = related.slice(0, take);
         if (nestedInclude) {
@@ -433,7 +602,7 @@ async function resolveIncludes(
         if (!on) continue;
         const rel = rels[k];
         if (rel?.type === "many") {
-          const related = (await backend.list(rel.collection)).filter((r) => r[rel.foreignKey] === doc.id);
+          const related = await backend.queryEq(rel.collection, rel.foreignKey, doc.id);
           counts[k] = related.length;
         }
       }
@@ -489,17 +658,27 @@ function createModel(collection: string) {
       where: Record<string, unknown>;
       include?: Record<string, unknown>;
     }): Promise<any | null> {
-      const rows = await backend.list(collection);
-      let doc: Doc | undefined;
-      if (args.where.id) {
-        doc = rows.find((r) => r.id === args.where.id);
-      } else if (args.where.email) {
-        doc = rows.find((r) => r.email === args.where.email);
+      let doc: Doc | null | undefined;
+      if (typeof args.where.id === "string") {
+        doc = await backend.getById(collection, args.where.id);
+      } else if (typeof args.where.email === "string") {
+        doc = (await backend.queryEq(collection, "email", args.where.email, 1))[0] ?? null;
+      } else if (args.where.firebaseUid) {
+        doc =
+          (await backend.queryEq(collection, "firebaseUid", args.where.firebaseUid, 1))[0] ??
+          null;
       } else if (args.where.companyId_key) {
         const ck = args.where.companyId_key as { companyId: string; key: string };
-        doc = rows.find((r) => r.companyId === ck.companyId && r.key === ck.key);
+        const candidates = await backend.queryEq(collection, "companyId", ck.companyId);
+        doc = candidates.find((r) => r.key === ck.key) ?? null;
       } else {
-        doc = rows.find((r) => matchesWhere(r, args.where));
+        const keys = Object.keys(args.where);
+        if (keys.length === 1) {
+          const field = keys[0];
+          doc = (await backend.queryEq(collection, field, args.where[field], 1))[0] ?? null;
+        } else {
+          doc = (await backend.list(collection)).find((r) => matchesWhere(r, args.where)) ?? null;
+        }
       }
       if (!doc) return null;
       const [enriched] = await resolveIncludes(collection, [doc], args.include);

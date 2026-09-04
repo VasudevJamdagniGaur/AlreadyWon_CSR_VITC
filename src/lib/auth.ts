@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { verifyFirebaseIdToken } from "@/lib/firebase";
 
 const SESSION_COOKIE = "kellyos_session";
+const SESSION_USER_TTL_MS = Number(process.env.SESSION_USER_CACHE_MS || 30_000);
+const sessionUserCache = new Map<string, { at: number; user: SessionUser | null }>();
 
 export type SessionUser = {
   id: string;
@@ -21,6 +23,7 @@ export function hashPassword(password: string): string {
 }
 
 export async function createSession(userId: string) {
+  sessionUserCache.delete(userId);
   const jar = await cookies();
   jar.set(SESSION_COOKIE, userId, {
     httpOnly: true,
@@ -32,6 +35,8 @@ export async function createSession(userId: string) {
 
 export async function destroySession() {
   const jar = await cookies();
+  const userId = jar.get(SESSION_COOKIE)?.value;
+  if (userId) sessionUserCache.delete(userId);
   jar.delete(SESSION_COOKIE);
 }
 
@@ -39,11 +44,19 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   const jar = await cookies();
   const userId = jar.get(SESSION_COOKIE)?.value;
   if (!userId) return null;
-  const user = await prisma.user.findUnique({
+
+  const cached = sessionUserCache.get(userId);
+  if (cached && Date.now() - cached.at < SESSION_USER_TTL_MS) {
+    return cached.user;
+  }
+
+  const user = (await prisma.user.findUnique({
     where: { id: userId },
     include: { company: true },
-  });
-  return user as SessionUser | null;
+  })) as SessionUser | null;
+
+  sessionUserCache.set(userId, { at: Date.now(), user });
+  return user;
 }
 
 /**
