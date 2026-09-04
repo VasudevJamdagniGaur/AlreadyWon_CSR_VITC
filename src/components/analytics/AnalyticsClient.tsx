@@ -1,14 +1,27 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { AppShell } from "@/components/layout/AppShell";
-import {
-  DonutChart,
-  ImpactScatterChart,
-  SimpleBarChart,
-} from "@/components/shared/Charts";
 import { KpiCard } from "@/components/shared/KpiCard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency, formatScore } from "@/lib/utils";
+
+const ChartSkeleton = () => (
+  <div className="h-[220px] animate-pulse rounded-xl bg-white/10" aria-hidden />
+);
+
+const DonutChart = dynamic(
+  () => import("@/components/shared/Charts").then((m) => m.DonutChart),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
+const SimpleBarChart = dynamic(
+  () => import("@/components/shared/Charts").then((m) => m.SimpleBarChart),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
+const ImpactScatterChart = dynamic(
+  () => import("@/components/shared/Charts").then((m) => m.ImpactScatterChart),
+  { ssr: false, loading: () => <ChartSkeleton /> }
+);
 
 export type AnalyticsClientProps = {
   totalSpend: number;

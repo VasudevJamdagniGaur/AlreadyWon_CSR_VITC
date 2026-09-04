@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { getLocalDemoKellyProjects, isLocalDemoMode } from "@/lib/localDemoStore";
 import { AppShell } from "@/components/layout/AppShell";
 import { EmptyPlaceholder } from "@/components/shared/EmptyPlaceholder";
 import { RiskBadge } from "@/components/shared/RiskBadge";
@@ -10,21 +11,71 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Progress } from "@/components/ui/progress";
 import { formatCurrency, statusLabel } from "@/lib/utils";
 
-const ACTIVE = ["FUNDED", "IN_PROGRESS", "MONITORING", "AT_RISK"];
+const ACTIVE = ["FUNDED", "IN_PROGRESS", "MONITORING", "AT_RISK", "SUBMITTED"];
+
+type MonitoringProject = {
+  id: string;
+  name: string;
+  organization?: string | null;
+  status: string;
+  riskLevel: string;
+  progress: number;
+  expectedProgress: number;
+  spentBudget: number;
+  approvedBudget?: number | null;
+  requestedBudget?: number | null;
+  ngo?: { name?: string | null } | null;
+  risks: { id: string; level: string; title: string }[];
+  budgets: { status?: string }[];
+};
 
 export default async function MonitoringPage() {
   const user = await requireUser();
   if (!user?.companyId) redirect("/onboarding");
 
-  const projects = await prisma.project.findMany({
-    where: { companyId: user.companyId, status: { in: ACTIVE } },
-    include: {
-      risks: { where: { isActive: true }, take: 3 },
-      budgets: { take: 1 },
-      ngo: true,
-    },
-    orderBy: [{ riskLevel: "desc" }, { name: "asc" }],
-  });
+  let projects: MonitoringProject[];
+
+  if (isLocalDemoMode()) {
+    // Instant path: in-memory source projects, no relation round-trips.
+    projects = getLocalDemoKellyProjects(user.companyId)
+      .filter((p) => ACTIVE.includes(p.status))
+      .map((p) => ({
+        id: p.id,
+        name: p.name,
+        organization: p.organization,
+        status: p.status,
+        riskLevel: p.riskLevel,
+        progress: p.progress,
+        expectedProgress: p.expectedProgress,
+        spentBudget: p.spentBudget,
+        approvedBudget: p.approvedBudget,
+        requestedBudget: p.requestedBudget,
+        ngo: null,
+        risks: [],
+        budgets: [],
+      }));
+  } else {
+    // Lean query — skip nested includes that cause N+1 store reads.
+    const rows = await prisma.project.findMany({
+      where: { companyId: user.companyId, status: { in: ACTIVE } },
+      orderBy: [{ riskLevel: "desc" }, { name: "asc" }],
+    });
+    projects = rows.map((p) => ({
+      id: p.id,
+      name: p.name,
+      organization: p.organization,
+      status: p.status,
+      riskLevel: p.riskLevel,
+      progress: p.progress ?? 0,
+      expectedProgress: p.expectedProgress ?? 0,
+      spentBudget: p.spentBudget ?? 0,
+      approvedBudget: p.approvedBudget,
+      requestedBudget: p.requestedBudget,
+      ngo: null,
+      risks: [],
+      budgets: [],
+    }));
+  }
 
   return (
     <AppShell breadcrumbs={[{ label: "Monitoring" }]}>
@@ -39,8 +90,8 @@ export default async function MonitoringPage() {
         <EmptyPlaceholder
           title="No active projects"
           description="Funded or in-progress initiatives will appear here for monitoring."
-          actionLabel="View projects"
-          actionHref="/projects"
+          actionLabel="View My Projects"
+          actionHref="/my-projects"
         />
       ) : (
         <div className="space-y-4">

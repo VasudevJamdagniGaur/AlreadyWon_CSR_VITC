@@ -652,7 +652,21 @@ function createModel(collection: string) {
       );
       rows = sortDocs(rows, args.orderBy);
       if (args.take != null) rows = rows.slice(0, args.take);
-      const enriched = await resolveIncludes(collection, rows, args.include);
+
+      // Local demo projects already carry relation stubs — skip N+1 store/Firestore reads.
+      const enriched =
+        collection === "Project" && isLocalDemoMode()
+          ? rows.map((r) => ({
+              ...r,
+              scores: r.scores ?? [],
+              risks: r.risks ?? [],
+              milestones: r.milestones ?? [],
+              budgets: r.budgets ?? [],
+              ngo: r.ngo ?? null,
+              recommendations: r.recommendations ?? [],
+              matches: r.matches ?? [],
+            }))
+          : await resolveIncludes(collection, rows, args.include);
       if (args.select) {
         return enriched.map((r) => {
           const picked: Doc = { id: r.id };
@@ -698,6 +712,18 @@ function createModel(collection: string) {
         }
       }
       if (!doc) return null;
+      if (collection === "Project" && isLocalDemoMode()) {
+        return {
+          ...doc,
+          scores: doc.scores ?? [],
+          risks: doc.risks ?? [],
+          milestones: doc.milestones ?? [],
+          budgets: doc.budgets ?? [],
+          ngo: doc.ngo ?? null,
+          recommendations: doc.recommendations ?? [],
+          matches: doc.matches ?? [],
+        };
+      }
       const [enriched] = await resolveIncludes(collection, [doc], args.include);
       return enriched;
     },

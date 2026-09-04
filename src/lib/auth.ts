@@ -4,7 +4,7 @@ import { prisma } from "@/lib/db";
 import { verifyFirebaseIdToken } from "@/lib/firebase";
 
 const SESSION_COOKIE = "kellyos_session";
-const SESSION_USER_TTL_MS = Number(process.env.SESSION_USER_CACHE_MS || 30_000);
+const SESSION_USER_TTL_MS = Number(process.env.SESSION_USER_CACHE_MS || 300_000);
 const sessionUserCache = new Map<string, { at: number; user: SessionUser | null }>();
 
 export type SessionUser = {

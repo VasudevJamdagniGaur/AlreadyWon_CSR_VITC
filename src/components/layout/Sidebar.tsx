@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard,
   FolderOpen,
@@ -30,6 +30,8 @@ const NAV = [
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
 ];
 
+const EXTRA_PREFETCH = ["/profile", "/settings", "/monitoring", "/analytics"];
+
 function initials(name: string) {
   const parts = name.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "U";
@@ -45,6 +47,7 @@ function isActivePath(pathname: string, href: string) {
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [pendingHref, setPendingHref] = useState<string | null>(null);
   const [, startTransition] = useTransition();
@@ -56,6 +59,20 @@ export function Sidebar() {
   useEffect(() => {
     setPendingHref(null);
   }, [pathname]);
+
+  // Warm Monitoring / Analytics (and other nav) so switches feel instant.
+  useEffect(() => {
+    const hrefs = Array.from(
+      new Set([...NAV.map((n) => n.href), ...EXTRA_PREFETCH])
+    );
+    for (const href of hrefs) {
+      try {
+        router.prefetch(href);
+      } catch {
+        // ignore prefetch failures
+      }
+    }
+  }, [router]);
 
   useEffect(() => {
     let cancelled = false;
