@@ -58,7 +58,7 @@ export function AppChrome({ children }: { children: ReactNode }) {
             notificationCount={meta.notificationCount}
           />
           <main className="p-4 lg:p-6">{children}</main>
-          <footer className="border-t border-white/10 bg-white/[0.03] px-6 py-3 text-center text-xs text-white/55 backdrop-blur-md">
+          <footer className="border-t border-cyan-400/15 bg-[#050d10]/45 px-6 py-3 text-center text-xs text-muted-foreground backdrop-blur-md">
             KellyOS — AI-Powered CSR Decision & Project Intelligence
           </footer>
         </div>

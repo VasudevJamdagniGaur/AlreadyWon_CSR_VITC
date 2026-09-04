@@ -70,8 +70,8 @@ export function VideoBackground({
         autoPlay
         preload="auto"
       />
-      {/* Light frosted veil only — keeps the map video clearly visible */}
-      <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30" />
+      {/* Soft teal veil — keeps map visible with petrol/teal tone */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,rgba(41,161,174,0.16)_0%,rgba(5,13,16,0.35)_60%,rgba(5,13,16,0.55)_100%)]" />
     </div>
   );
 }

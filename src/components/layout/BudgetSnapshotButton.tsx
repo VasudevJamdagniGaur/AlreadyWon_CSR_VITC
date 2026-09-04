@@ -185,7 +185,7 @@ function Metric({
   icon: typeof IndianRupee;
 }) {
   return (
-    <div className="rounded-xl border border-white/15 bg-white/10 p-2.5 backdrop-blur-md">
+    <div className="rounded-xl border border-cyan-400/20 bg-[#07141a]/50 p-2.5 backdrop-blur-md">
       <div className="mb-1 flex items-center justify-between gap-1">
         <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
           {label}

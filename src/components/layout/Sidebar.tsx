@@ -105,7 +105,7 @@ export function Sidebar() {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-white/20 bg-white/[0.03] backdrop-blur-2xl transition-transform lg:translate-x-0 supports-[backdrop-filter]:bg-white/[0.025]",
+          "fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-cyan-400/20 bg-[#050d10]/75 backdrop-blur-2xl transition-transform lg:translate-x-0",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
