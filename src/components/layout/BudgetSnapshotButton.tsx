@@ -92,7 +92,7 @@ export function BudgetSnapshotButton() {
         aria-haspopup="dialog"
         onClick={toggle}
       >
-        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-navy-900 text-white">
+        <span className="flex h-7 w-7 items-center justify-center rounded-full bg-cyan-400/20 text-cyan-200 ring-1 ring-cyan-400/40">
           <IndianRupee className="h-3.5 w-3.5" aria-hidden />
         </span>
       </Button>
@@ -101,14 +101,14 @@ export function BudgetSnapshotButton() {
         <div
           role="dialog"
           aria-label="Portfolio snapshot"
-          className="absolute right-0 top-full z-50 mt-2 w-[min(92vw,28rem)] rounded-xl border bg-white p-4 shadow-lg"
+          className="glass-panel-strong absolute right-0 top-full z-50 mt-2 w-[min(92vw,28rem)] rounded-2xl p-4"
         >
           <div className="mb-3 flex items-start gap-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-navy-900 text-white">
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cyan-400/20 text-cyan-200 ring-1 ring-cyan-400/40">
               <IndianRupee className="h-4 w-4" aria-hidden />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-semibold text-navy-900">Portfolio Snapshot</p>
+              <p className="text-sm font-semibold text-cyan-50">Portfolio Snapshot</p>
               <p className="text-xs text-muted-foreground">
                 {kpis
                   ? `${formatCurrency(kpis.annualBudget, true)} budget · ${kpis.activeProjects} active projects`
@@ -157,7 +157,7 @@ export function BudgetSnapshotButton() {
 
               {data?.portfolio?.length ? (
                 <div>
-                  <p className="mb-1 text-xs font-medium text-navy-900">Budget Allocation</p>
+                  <p className="mb-1 text-xs font-medium text-cyan-50">Budget Allocation</p>
                   <DonutChart data={data.portfolio} height={180} />
                 </div>
               ) : null}
@@ -185,14 +185,14 @@ function Metric({
   icon: typeof IndianRupee;
 }) {
   return (
-    <div className="rounded-lg border bg-slate-50/80 p-2.5">
+    <div className="rounded-xl border border-white/15 bg-white/10 p-2.5 backdrop-blur-md">
       <div className="mb-1 flex items-center justify-between gap-1">
         <p className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
           {label}
         </p>
         <Icon className="h-3 w-3 text-muted-foreground" aria-hidden />
       </div>
-      <p className="text-sm font-semibold text-navy-900">{value}</p>
+      <p className="text-sm font-semibold text-cyan-50">{value}</p>
     </div>
   );
 }

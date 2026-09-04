@@ -175,7 +175,7 @@ export function ProjectDetailClient({ project }: { project: ProjectDetailData })
       <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="text-2xl font-semibold tracking-tight text-navy-900">
+            <h1 className="text-2xl font-semibold tracking-tight text-cyan-50">
               {project.name}
             </h1>
             <Badge variant="secondary">{statusLabel(project.status)}</Badge>
@@ -187,7 +187,7 @@ export function ProjectDetailClient({ project }: { project: ProjectDetailData })
           </p>
           {(project.sourceName || project.sourceUrl) && (
             <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
-              <span className="font-medium text-navy-900">
+              <span className="font-medium text-cyan-50">
                 Source: {project.sourceName || "CSRBOX"}
               </span>
               {project.sourceUrl && (
@@ -195,7 +195,7 @@ export function ProjectDetailClient({ project }: { project: ProjectDetailData })
                   href={project.sourceUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-navy-800 underline-offset-4 hover:underline"
+                  className="text-cyan-300 underline-offset-4 hover:underline"
                 >
                   Open Original Source ↗
                 </a>

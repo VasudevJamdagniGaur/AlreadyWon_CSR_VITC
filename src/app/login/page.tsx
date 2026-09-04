@@ -109,7 +109,7 @@ function LoginForm() {
     <Card className="w-full max-w-md">
       <CardHeader>
         <div className="mb-2">
-          <Link href="/" className="text-lg font-semibold text-navy-900">
+          <Link href="/" className="text-lg font-semibold text-cyan-300 text-glow-cyan">
             KELLYOS
           </Link>
         </div>
@@ -191,7 +191,7 @@ function LoginForm() {
               Need an account?{" "}
               <button
                 type="button"
-                className="font-medium text-navy-900 underline-offset-4 hover:underline"
+                className="font-medium text-cyan-50 underline-offset-4 hover:underline"
                 onClick={() => {
                   setMode("register");
                   setError("");
@@ -205,7 +205,7 @@ function LoginForm() {
               Already have an account?{" "}
               <button
                 type="button"
-                className="font-medium text-navy-900 underline-offset-4 hover:underline"
+                className="font-medium text-cyan-50 underline-offset-4 hover:underline"
                 onClick={() => {
                   setMode("signin");
                   setError("");
@@ -223,7 +223,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
+    <div className="flex min-h-screen items-center justify-center px-4">
       <Suspense fallback={<div className="text-sm text-muted-foreground">Loading…</div>}>
         <LoginForm />
       </Suspense>

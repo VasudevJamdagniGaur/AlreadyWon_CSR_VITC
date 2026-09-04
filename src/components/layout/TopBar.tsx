@@ -29,7 +29,7 @@ export function TopBar({
   }
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/80 lg:px-6">
+    <header className="glass-chrome sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-white/15 px-4 lg:px-6">
       <div className="ml-12 flex min-w-0 flex-1 items-center gap-4 lg:ml-0">
         {breadcrumbs.length > 0 && (
           <nav aria-label="Breadcrumb" className="hidden items-center gap-1 text-sm md:flex">

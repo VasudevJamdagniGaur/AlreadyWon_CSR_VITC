@@ -51,7 +51,7 @@ export default function SearchPageClient() {
 
   return (
     <AppShell breadcrumbs={[{ label: "Search" }]}>
-      <h1 className="text-2xl font-semibold text-navy-900">Search</h1>
+      <h1 className="text-2xl font-semibold text-cyan-50">Search</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Search projects, NGOs, documents, and recommendations.
       </p>

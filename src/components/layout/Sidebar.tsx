@@ -105,7 +105,7 @@ export function Sidebar() {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 flex w-64 flex-col bg-navy-950 transition-transform lg:translate-x-0",
+          "fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-white/15 bg-white/[0.06] backdrop-blur-2xl transition-transform lg:translate-x-0 supports-[backdrop-filter]:bg-white/[0.05]",
           open ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -142,8 +142,8 @@ export function Sidebar() {
                 className={cn(
                   "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
                   active
-                    ? "bg-white/10 text-white"
-                    : "text-navy-200 hover:bg-white/5 hover:text-white"
+                    ? "bg-cyan-400/15 text-cyan-100 shadow-[inset_0_0_0_1px_rgba(74,222,224,0.25)]"
+                    : "text-navy-200 hover:bg-cyan-400/10 hover:text-white"
                 )}
               >
                 <item.icon className="h-4 w-4 shrink-0" />
@@ -161,8 +161,8 @@ export function Sidebar() {
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
               isActivePath(highlightHref, "/profile")
-                ? "bg-white/10 text-white"
-                : "text-navy-200 hover:bg-white/5 hover:text-white"
+              ? "bg-cyan-400/15 text-cyan-100 shadow-[inset_0_0_0_1px_rgba(74,222,224,0.25)]"
+              : "text-navy-200 hover:bg-cyan-400/10 hover:text-white"
             )}
           >
             <UserRound className="h-4 w-4" />
@@ -174,9 +174,9 @@ export function Sidebar() {
             onClick={() => navigate("/settings")}
             className={cn(
               "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-              isActivePath(highlightHref, "/settings")
-                ? "bg-white/10 text-white"
-                : "text-navy-200 hover:bg-white/5 hover:text-white"
+            isActivePath(highlightHref, "/settings")
+              ? "bg-cyan-400/15 text-cyan-100 shadow-[inset_0_0_0_1px_rgba(74,222,224,0.25)]"
+              : "text-navy-200 hover:bg-cyan-400/10 hover:text-white"
             )}
           >
             <Settings className="h-4 w-4" />

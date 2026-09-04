@@ -44,7 +44,7 @@ export default async function NGODetailPage({
     >
       <div className="mb-6">
         <div className="flex flex-wrap items-center gap-2">
-          <h1 className="text-2xl font-semibold tracking-tight text-navy-900">{ngo.name}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-cyan-50">{ngo.name}</h1>
           {ngo.isNew && <Badge variant="info">New partner</Badge>}
         </div>
         <p className="mt-2 max-w-3xl text-sm text-muted-foreground">

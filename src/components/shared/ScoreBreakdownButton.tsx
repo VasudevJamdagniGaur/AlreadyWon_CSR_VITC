@@ -67,7 +67,7 @@ export function ScoreBreakdownButton({
           e.stopPropagation();
           setOpen((v) => !v);
         }}
-        className="rounded px-1.5 py-0.5 font-semibold text-navy-900 underline decoration-dotted underline-offset-4 hover:bg-muted/60"
+        className="rounded px-1.5 py-0.5 font-semibold text-cyan-50 underline decoration-dotted underline-offset-4 hover:bg-muted/60"
         aria-expanded={open}
         title="View score division"
       >
@@ -75,7 +75,7 @@ export function ScoreBreakdownButton({
       </button>
       {open && (
         <div
-          className="absolute left-0 z-30 mt-1 w-64 rounded-lg border bg-white p-3 text-left shadow-lg"
+          className="glass-panel-strong absolute left-0 z-30 mt-1 w-64 rounded-2xl p-3 text-left"
           onClick={(e) => e.stopPropagation()}
         >
           <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
@@ -90,7 +90,7 @@ export function ScoreBreakdownButton({
                     {d.label}{" "}
                     <span className="text-[10px] text-muted-foreground/80">({d.weight})</span>
                   </span>
-                  <span className="font-semibold tabular-nums text-navy-900">
+                  <span className="font-semibold tabular-nums text-cyan-50">
                     {value != null ? formatScore(value) : "—"}
                   </span>
                 </li>

@@ -29,7 +29,7 @@ export default async function MonitoringPage() {
   return (
     <AppShell breadcrumbs={[{ label: "Monitoring" }]}>
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-navy-900">Monitoring</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-cyan-50">Monitoring</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Active project health — progress, budget burn, and open risks.
         </p>

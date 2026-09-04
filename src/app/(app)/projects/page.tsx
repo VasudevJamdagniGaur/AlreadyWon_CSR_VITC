@@ -50,7 +50,7 @@ export default async function ProjectsPage() {
   return (
     <AppShell breadcrumbs={[{ label: "Projects" }]}>
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-navy-900">Projects</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-cyan-50">Projects</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           All CSR proposals and funded initiatives in KellyOS.
         </p>
@@ -165,7 +165,7 @@ export default async function ProjectsPage() {
                                   href={p.sourceUrl}
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="text-xs text-navy-800 hover:underline"
+                                  className="text-xs text-cyan-300 hover:underline"
                                 >
                                   Open Original Source ↗
                                 </a>

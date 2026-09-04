@@ -17,7 +17,7 @@ export default async function OnboardingPage() {
   const company = await prisma.company.findFirst();
   if (!company) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-100 p-6">
+      <div className="flex min-h-screen items-center justify-center bg-transparent p-6">
         <Card className="max-w-lg">
           <CardHeader>
             <CardTitle>KellyOS setup required</CardTitle>
@@ -37,10 +37,10 @@ export default async function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-navy-950 to-navy-900 px-6 py-12 text-white">
+    <div className="min-h-screen bg-transparent px-6 py-12 text-white">
       <div className="mx-auto max-w-3xl">
-        <h1 className="text-3xl font-semibold tracking-tight">Welcome to KellyOS</h1>
-        <p className="mt-2 text-navy-300">
+        <h1 className="text-3xl font-semibold tracking-tight text-cyan-50 text-glow-cyan">Welcome to KellyOS</h1>
+        <p className="mt-2 text-cyan-200/80">
           Decision intelligence for your CSR portfolio. Company profile loaded:{" "}
           <strong className="text-white">{company.name}</strong>.
         </p>
@@ -56,20 +56,20 @@ export default async function OnboardingPage() {
             <Link
               key={s.step}
               href={s.href}
-              className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-4 transition hover:bg-white/10"
+              className="flex items-center gap-3 rounded-xl border border-cyan-400/20 bg-cyan-400/5 p-4 transition hover:bg-cyan-400/10"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-sm font-semibold">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-cyan-400/15 text-sm font-semibold">
                 {s.step}
               </span>
               <div className="flex-1">
                 <p className="font-medium">{s.title}</p>
               </div>
-              <s.icon className="h-4 w-4 text-navy-300" />
+              <s.icon className="h-4 w-4 text-cyan-200/80" />
             </Link>
           ))}
         </div>
 
-        <Button asChild size="lg" className="mt-8 bg-white text-navy-950 hover:bg-navy-100">
+        <Button asChild size="lg" className="mt-8 bg-cyan-300 text-[#050d10] hover:bg-cyan-200">
           <Link href="/dashboard">
             Go to Dashboard <ArrowRight className="h-4 w-4" />
           </Link>

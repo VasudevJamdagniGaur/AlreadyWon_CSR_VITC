@@ -254,7 +254,7 @@ export function ProfileClient({ initialProfile, user }: ProfileClientProps) {
     <AppShell breadcrumbs={[{ label: "Profile" }]}>
       <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-navy-900">
+          <h1 className="text-2xl font-semibold tracking-tight text-cyan-50">
             CSR Intelligence Profile
           </h1>
           <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
@@ -265,16 +265,16 @@ export function ProfileClient({ initialProfile, user }: ProfileClientProps) {
         <div className="min-w-[200px]">
           <div className="mb-1 flex items-center justify-between text-xs">
             <span className="text-muted-foreground">Profile completeness</span>
-            <span className="font-semibold text-navy-900">{completeness}%</span>
+            <span className="font-semibold text-cyan-50">{completeness}%</span>
           </div>
           <Progress value={completeness} className="h-2" />
         </div>
       </div>
 
-      <Card className="mb-6 border-navy-200 bg-navy-950 text-white">
+      <Card className="glass-panel-strong mb-6 text-white">
         <CardHeader className="pb-3">
           <CardTitle className="text-base text-white">KellyOS CSR Intelligence</CardTitle>
-          <CardDescription className="text-navy-300">
+          <CardDescription className="text-cyan-100/75">
             Derived from your saved profile — used as organisational context for
             recommendations.
           </CardDescription>
@@ -290,7 +290,7 @@ export function ProfileClient({ initialProfile, user }: ProfileClientProps) {
               { label: "Future Priority", value: summary.futurePriority },
             ].map((item) => (
               <div key={item.label}>
-                <p className="text-[11px] uppercase tracking-wide text-navy-300">{item.label}</p>
+                <p className="text-[11px] uppercase tracking-wide text-cyan-300/70">{item.label}</p>
                 <p className="mt-1 text-sm font-medium text-white">{item.value}</p>
               </div>
             ))}
@@ -521,7 +521,7 @@ export function ProfileClient({ initialProfile, user }: ProfileClientProps) {
                 <button
                   key={c}
                   type="button"
-                  className="rounded-full border border-navy-900 bg-navy-900 px-3 py-1 text-xs text-white"
+                  className="rounded-full border border-cyan-400/40 bg-cyan-400/20 px-3 py-1 text-xs text-white"
                   onClick={() =>
                     update("geography", {
                       preferredCitiesDistricts:
@@ -665,7 +665,7 @@ export function ProfileClient({ initialProfile, user }: ProfileClientProps) {
                     impactScaleBalance: Number(e.target.value),
                   })
                 }
-                className="w-full accent-navy-900"
+                className="w-full accent-cyan-400"
               />
               <div className="flex justify-between text-[11px] text-muted-foreground">
                 <span>Depth</span>
@@ -687,7 +687,7 @@ export function ProfileClient({ initialProfile, user }: ProfileClientProps) {
                     timeHorizonBalance: Number(e.target.value),
                   })
                 }
-                className="w-full accent-navy-900"
+                className="w-full accent-cyan-400"
               />
               <div className="flex justify-between text-[11px] text-muted-foreground">
                 <span>Immediate</span>
@@ -1116,7 +1116,7 @@ export function ProfileClient({ initialProfile, user }: ProfileClientProps) {
           </CardContent>
         </Card>
 
-        <div className="sticky bottom-4 z-10 flex flex-wrap items-center gap-3 rounded-lg border bg-white/95 p-3 shadow-sm backdrop-blur">
+        <div className="glass-panel-strong sticky bottom-4 z-10 flex flex-wrap items-center gap-3 rounded-2xl p-3">
           <Button onClick={save} disabled={saving}>
             {saving ? "Saving…" : "Save Changes"}
           </Button>

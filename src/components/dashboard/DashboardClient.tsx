@@ -104,7 +104,7 @@ export function DashboardClient(props: DashboardClientProps) {
       notificationCount={notificationCount}
     >
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-navy-900">
+        <h1 className="text-2xl font-semibold tracking-tight text-cyan-50">
           {greeting}, {userName}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -187,7 +187,7 @@ export function DashboardClient(props: DashboardClientProps) {
                                 href={p.sourceUrl}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-xs text-navy-800 hover:underline"
+                                className="text-xs text-cyan-300 hover:underline"
                               >
                                 Open Original Source ↗
                               </a>
@@ -201,7 +201,7 @@ export function DashboardClient(props: DashboardClientProps) {
                 {availableCsrs.length > 8 && (
                   <p className="mt-3 text-xs text-muted-foreground">
                     Showing 8 of {availableCsrs.length}.{" "}
-                    <Link href="/projects#available-csrs" className="text-navy-800 hover:underline">
+                    <Link href="/projects#available-csrs" className="text-cyan-300 hover:underline">
                       See full list
                     </Link>
                   </p>
@@ -271,7 +271,7 @@ export function DashboardClient(props: DashboardClientProps) {
                     <li key={p.id}>
                       <Link
                         href={`/projects/${p.id}`}
-                        className="text-xs text-navy-800 hover:underline"
+                        className="text-xs text-cyan-300 hover:underline"
                       >
                         {p.name}
                       </Link>

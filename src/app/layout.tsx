@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { VideoBackground } from "@/components/layout/VideoBackground";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -26,7 +27,8 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} font-sans`}>
-        {children}
+        <VideoBackground />
+        <div className="relative z-0 min-h-screen">{children}</div>
       </body>
     </html>
   );

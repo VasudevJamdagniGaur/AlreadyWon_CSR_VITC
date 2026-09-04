@@ -50,7 +50,7 @@ export function AppChrome({ children }: { children: ReactNode }) {
 
   return (
     <ShellContext.Provider value={value}>
-      <div className="min-h-screen bg-slate-50">
+      <div className="min-h-screen bg-transparent">
         <Sidebar />
         <div className="lg:pl-64">
           <TopBar
@@ -58,7 +58,7 @@ export function AppChrome({ children }: { children: ReactNode }) {
             notificationCount={meta.notificationCount}
           />
           <main className="p-4 lg:p-6">{children}</main>
-          <footer className="border-t px-6 py-3 text-center text-xs text-muted-foreground">
+          <footer className="border-t border-white/10 bg-white/[0.03] px-6 py-3 text-center text-xs text-white/55 backdrop-blur-md">
             KellyOS — AI-Powered CSR Decision & Project Intelligence
           </footer>
         </div>

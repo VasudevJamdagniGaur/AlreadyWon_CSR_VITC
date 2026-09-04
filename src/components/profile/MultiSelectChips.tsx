@@ -36,8 +36,8 @@ export function MultiSelectChips({
             className={cn(
               "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
               selected
-                ? "border-navy-900 bg-navy-900 text-white"
-                : "border-input bg-background text-muted-foreground hover:border-navy-300 hover:text-navy-900"
+                ? "border-cyan-400/40 bg-cyan-400/20 text-cyan-50"
+                : "border-input bg-background text-muted-foreground hover:border-navy-300 hover:text-cyan-50"
             )}
           >
             {option}
@@ -85,7 +85,7 @@ export function RankedFocusSelect({
               className={cn(
                 "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors",
                 selected
-                  ? "border-navy-900 bg-navy-900 text-white"
+                  ? "border-cyan-400/40 bg-cyan-400/20 text-cyan-50"
                   : "border-input bg-background text-muted-foreground hover:border-navy-300"
               )}
             >

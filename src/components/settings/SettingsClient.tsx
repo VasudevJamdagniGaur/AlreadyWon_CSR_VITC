@@ -102,7 +102,7 @@ export function SettingsClient({ company, weights: initialWeights }: SettingsCli
   return (
     <AppShell breadcrumbs={[{ label: "Settings" }]}>
       <div className="mb-6 flex flex-wrap items-center gap-2">
-        <h1 className="text-2xl font-semibold tracking-tight text-navy-900">Settings</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-cyan-50">Settings</h1>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">

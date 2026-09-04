@@ -42,7 +42,7 @@ export function AnalyticsClient(props: AnalyticsClientProps) {
   return (
     <AppShell breadcrumbs={[{ label: "Analytics" }]}>
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-navy-900">Analytics</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-cyan-50">Analytics</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Portfolio spend, geography, and impact-vs-investment views from KellyOS.
         </p>

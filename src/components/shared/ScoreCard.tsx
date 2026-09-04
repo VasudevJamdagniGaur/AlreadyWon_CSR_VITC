@@ -37,7 +37,7 @@ export function ScoreCard({
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-end gap-2">
-          <span className="text-3xl font-semibold tracking-tight text-navy-900 animate-count-up">
+          <span className="text-3xl font-semibold tracking-tight text-cyan-50 animate-count-up">
             {formatScore(score)}
           </span>
           <span className="mb-1 text-sm text-muted-foreground">/100</span>
