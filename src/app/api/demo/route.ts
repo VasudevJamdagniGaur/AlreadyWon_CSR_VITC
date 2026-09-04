@@ -22,10 +22,8 @@ export async function POST() {
       include: {
         scores: { orderBy: { createdAt: "desc" }, take: 1 },
         risks: { where: { isActive: true }, take: 3 },
-        matches: { include: { ngo: true }, orderBy: { matchScore: "desc" }, take: 1 },
       },
     });
-    const seva = await prisma.nGO.findFirst({ where: { name: "Seva Foundation" } });
 
     await logAudit({
       userId: user.id,
@@ -61,15 +59,6 @@ export async function POST() {
         },
         {
           step: 4,
-          title: "Match NGO",
-          href: sunrise ? `/matching?projectId=${sunrise.id}` : "/matching",
-          detail: seva
-            ? `Top match signal: ${seva.name}.`
-            : "Rank implementation partners for the selected project.",
-          matchScore: sunrise?.matches?.[0]?.matchScore,
-        },
-        {
-          step: 5,
           title: "Monitor execution",
           href: "/monitoring",
           detail:

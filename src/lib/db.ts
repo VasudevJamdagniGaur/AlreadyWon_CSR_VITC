@@ -2,6 +2,7 @@ import { randomBytes } from "crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import path from "path";
 import { isDemoFirestoreMode } from "@/lib/firebase";
+import { getLocalDemoKellyProjects, isLocalDemoMode } from "@/lib/localDemoStore";
 
 export type Doc = Record<string, any> & { id: string };
 
@@ -629,6 +630,14 @@ function stripNestedCreates(data: Record<string, unknown>): {
   return { base, nested: [] };
 }
 
+/** When LOCAL_DEMO_MODE is on, Project reads come from source document — not Firestore. */
+async function listCollectionDocs(collection: string): Promise<Doc[]> {
+  if (collection === "Project" && isLocalDemoMode()) {
+    return getLocalDemoKellyProjects() as unknown as Doc[];
+  }
+  return backend.list(collection);
+}
+
 function createModel(collection: string) {
   return {
     async findMany(args: {
@@ -638,7 +647,9 @@ function createModel(collection: string) {
       orderBy?: Record<string, "asc" | "desc"> | Record<string, "asc" | "desc">[];
       take?: number;
     } = {}): Promise<any[]> {
-      let rows = (await backend.list(collection)).filter((d) => matchesWhere(d, args.where));
+      let rows = (await listCollectionDocs(collection)).filter((d) =>
+        matchesWhere(d, args.where)
+      );
       rows = sortDocs(rows, args.orderBy);
       if (args.take != null) rows = rows.slice(0, args.take);
       const enriched = await resolveIncludes(collection, rows, args.include);
@@ -659,7 +670,13 @@ function createModel(collection: string) {
       include?: Record<string, unknown>;
     }): Promise<any | null> {
       let doc: Doc | null | undefined;
-      if (typeof args.where.id === "string") {
+
+      if (collection === "Project" && isLocalDemoMode()) {
+        doc =
+          (await listCollectionDocs(collection)).find((r) =>
+            matchesWhere(r, args.where)
+          ) ?? null;
+      } else if (typeof args.where.id === "string") {
         doc = await backend.getById(collection, args.where.id);
       } else if (typeof args.where.email === "string") {
         doc = (await backend.queryEq(collection, "email", args.where.email, 1))[0] ?? null;
@@ -695,6 +712,10 @@ function createModel(collection: string) {
     },
 
     async create(args: { data: Record<string, any> }): Promise<any> {
+      if (collection === "Project" && isLocalDemoMode()) {
+        // Local demo projects are source-document only — do not write to Firestore.
+        return { id: args.data.id || `local-${Date.now()}`, ...args.data };
+      }
       const { base } = stripNestedCreates(args.data);
       // Expand nested create for common seed patterns
       const data = { ...args.data };
@@ -748,6 +769,11 @@ function createModel(collection: string) {
     }) {
       const existing = await this.findUnique({ where: args.where });
       if (!existing) throw new Error(`${collection} not found`);
+      if (collection === "Project" && isLocalDemoMode()) {
+        const merged = { ...existing, ...args.data, id: existing.id };
+        const [enriched] = await resolveIncludes(collection, [merged as Doc], args.include);
+        return enriched;
+      }
       const saved = await backend.save(collection, {
         ...existing,
         ...args.data,
@@ -758,6 +784,12 @@ function createModel(collection: string) {
     },
 
     async updateMany(args: { where: Record<string, unknown>; data: Record<string, unknown> }) {
+      if (collection === "Project" && isLocalDemoMode()) {
+        const rows = (await listCollectionDocs(collection)).filter((d) =>
+          matchesWhere(d, args.where)
+        );
+        return { count: rows.length };
+      }
       const rows = (await backend.list(collection)).filter((d) => matchesWhere(d, args.where));
       for (const row of rows) {
         await backend.save(collection, { ...row, ...args.data, id: row.id } as Doc);
@@ -766,12 +798,17 @@ function createModel(collection: string) {
     },
 
     async deleteMany(args: { where?: Record<string, unknown> } = {}) {
+      if (collection === "Project" && isLocalDemoMode()) {
+        return { count: 0 };
+      }
       const count = await backend.removeWhere(collection, args.where);
       return { count };
     },
 
     async count(args: { where?: Record<string, unknown> } = {}) {
-      const rows = (await backend.list(collection)).filter((d) => matchesWhere(d, args.where));
+      const rows = (await listCollectionDocs(collection)).filter((d) =>
+        matchesWhere(d, args.where)
+      );
       return rows.length;
     },
 

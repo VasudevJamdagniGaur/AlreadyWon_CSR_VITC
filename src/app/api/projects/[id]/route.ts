@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { requireUser, logAudit } from "@/lib/auth";
 import { parseJsonArray, parseJsonObject, toJson } from "@/lib/utils";
-import { matchNGOsToProject } from "@/services/matching/ngoMatching";
 import { allocateBudget } from "@/services/allocation/allocationEngine";
 import { AllocationRequestSchema } from "@/lib/validation";
 import { analyzeProjectRisks, highestRiskLevel } from "@/services/risk/riskEngine";

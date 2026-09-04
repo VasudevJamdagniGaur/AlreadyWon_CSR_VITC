@@ -287,9 +287,6 @@ export function PrioritizationClient({
                 <Button asChild className="mt-2 w-full" variant="outline">
                   <Link href={`/projects/${selected.id}`}>Open project</Link>
                 </Button>
-                <Button asChild className="w-full" variant="secondary">
-                  <Link href={`/matching?projectId=${selected.id}`}>Find NGO match</Link>
-                </Button>
               </>
             )}
           </CardContent>

@@ -3,7 +3,7 @@ import { requireUser } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, Building2, Scale, Wallet, GitCompare, Activity } from "lucide-react";
+import { ArrowRight, Building2, Scale, Wallet, Activity } from "lucide-react";
 
 export default async function OnboardingPage() {
   const user = await requireUser();
@@ -49,9 +49,8 @@ export default async function OnboardingPage() {
           {[
             { step: "1", title: "Prioritize projects", href: "/prioritization", icon: Scale },
             { step: "2", title: "Choose funding", href: "/allocation", icon: Wallet },
-            { step: "3", title: "Match NGO", href: "/matching", icon: GitCompare },
-            { step: "4", title: "Monitor execution", href: "/monitoring", icon: Activity },
-            { step: "5", title: "Review company", href: "/settings", icon: Building2 },
+            { step: "3", title: "Monitor execution", href: "/monitoring", icon: Activity },
+            { step: "4", title: "Review company", href: "/settings", icon: Building2 },
           ].map((s) => (
             <Link
               key={s.step}

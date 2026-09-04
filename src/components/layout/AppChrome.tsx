@@ -10,6 +10,7 @@ import {
 } from "react";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { TopBar } from "@/components/layout/TopBar";
+import { LocalDemoBootstrap } from "@/components/layout/LocalDemoBootstrap";
 
 type ShellMeta = {
   breadcrumbs: { label: string; href?: string }[];
@@ -50,6 +51,7 @@ export function AppChrome({ children }: { children: ReactNode }) {
 
   return (
     <ShellContext.Provider value={value}>
+      <LocalDemoBootstrap />
       <div className="min-h-screen bg-transparent">
         <Sidebar />
         <div className="lg:pl-64">

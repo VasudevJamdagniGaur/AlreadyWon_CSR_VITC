@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { FileText, Loader2, Search, Sparkles } from "lucide-react";
+import { FileText, Loader2, Sparkles } from "lucide-react";
 import { AppShell } from "@/components/layout/AppShell";
 import { LifecycleTimeline } from "@/components/shared/LifecycleTimeline";
 import { ScoreCard } from "@/components/shared/ScoreCard";
@@ -215,12 +215,6 @@ export function ProjectDetailClient({ project }: { project: ProjectDetailData })
           )}
         </div>
         <div className="flex flex-wrap gap-2">
-          <Button asChild variant="outline">
-            <Link href={`/matching?projectId=${project.id}`}>
-              <Search className="h-4 w-4" />
-              Find NGO
-            </Link>
-          </Button>
           <Button onClick={() => void generateSummary()} disabled={summaryLoading}>
             {summaryLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -607,9 +601,6 @@ export function ProjectDetailClient({ project }: { project: ProjectDetailData })
               ) : (
                 <>
                   <p className="text-muted-foreground">No NGO assigned yet.</p>
-                  <Button asChild>
-                    <Link href={`/matching?projectId=${project.id}`}>Find NGO</Link>
-                  </Button>
                 </>
               )}
             </CardContent>
